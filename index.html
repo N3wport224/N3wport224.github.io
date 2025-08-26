@@ -74,7 +74,7 @@
                 <p class="text-sm font-medium text-gray-600">
                     User ID: <span id="user-id" class="font-mono text-gray-400">Loading...</span>
                 </p>
-                <button id="logout-btn" class="bg-red-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-red-600 transition-colors">
+                <button type="button" id="logout-btn" class="bg-red-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-red-600 transition-colors">
                     Log Out
                 </button>
             </div>
@@ -178,10 +178,10 @@
                             <input type="number" id="extra-payment" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 pl-8" value="0">
                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
                         </div>
-                        <button id="calculate-snowball" class="bg-blue-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-blue-600 transition-colors">
+                        <button type="button" id="calculate-snowball" class="bg-blue-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-blue-600 transition-colors">
                             Calculate
                         </button>
-                        <button id="download-snowball" class="bg-gray-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-gray-600 transition-colors">
+                        <button type="button" id="download-snowball" class="bg-gray-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-gray-600 transition-colors">
                             Download Plan
                         </button>
                     </div>
@@ -226,16 +226,12 @@
         const loginForm = document.getElementById('login-form');
         const loginEmailInput = document.getElementById('login-email');
         const loginPasswordInput = document.getElementById('login-password');
-        const loginBtn = document.getElementById('login-btn');
-        const showSignupBtn = document.getElementById('show-signup-btn');
         const loginMessageBox = document.getElementById('login-message');
 
         // Signup form elements
         const signupForm = document.getElementById('signup-form');
         const signupEmailInput = document.getElementById('signup-email');
         const signupPasswordInput = document.getElementById('signup-password');
-        const createAccountBtn = document.getElementById('create-account-btn');
-        const backToLoginBtn = document.getElementById('back-to-login-btn');
         const signupMessageBox = document.getElementById('signup-message');
 
         // Get DOM elements for the tracker
@@ -604,84 +600,94 @@
             db = getFirestore(app);
             auth = getAuth(app);
 
-            // Event listeners for the tracker buttons
-            saveTransactionBtn.addEventListener('click', saveTransaction);
-            deleteTransactionBtn.addEventListener('click', deleteTransaction);
-            cancelEditBtn.addEventListener('click', resetForm);
+            // Using event delegation for all button clicks
+            document.body.addEventListener('click', async (e) => {
+                const targetId = e.target.id;
+                console.log(`Button with ID '${targetId}' was clicked.`);
+
+                // Authentication buttons
+                if (targetId === 'show-signup-btn') {
+                    loginForm.classList.add('hidden');
+                    signupForm.classList.remove('hidden');
+                } else if (targetId === 'back-to-login-btn') {
+                    loginForm.classList.remove('hidden');
+                    signupForm.classList.add('hidden');
+                } else if (targetId === 'create-account-btn') {
+                    e.preventDefault();
+                    const email = signupEmailInput.value;
+                    const password = signupPasswordInput.value;
+                    try {
+                        await createUserWithEmailAndPassword(auth, email, password);
+                        showMessage('Account created successfully!', false, signupMessageBox);
+                    } catch (error) {
+                        let message;
+                        switch (error.code) {
+                            case 'auth/weak-password':
+                                message = 'Password must be at least 6 characters long.';
+                                break;
+                            case 'auth/email-already-in-use':
+                                message = 'The email address is already in use.';
+                                break;
+                            case 'auth/invalid-email':
+                                message = 'The email address is not valid.';
+                                break;
+                            default:
+                                message = 'Sign up failed. Please try again.';
+                                console.error(error);
+                        }
+                        showMessage(message, true, signupMessageBox);
+                    }
+                } else if (targetId === 'login-btn') {
+                    e.preventDefault();
+                    const email = loginEmailInput.value;
+                    const password = loginPasswordInput.value;
+                    try {
+                        await signInWithEmailAndPassword(auth, email, password);
+                    } catch (error) {
+                        let message;
+                        switch (error.code) {
+                            case 'auth/wrong-password':
+                                message = 'Invalid password.';
+                                break;
+                            case 'auth/user-not-found':
+                                message = 'No account found with that email.';
+                                break;
+                            case 'auth/invalid-email':
+                                message = 'The email address is not valid.';
+                                break;
+                            default:
+                                message = 'Login failed. Please try again.';
+                                console.error(error);
+                        }
+                        showMessage(message, true, loginMessageBox);
+                    }
+                } else if (targetId === 'logout-btn') {
+                    try {
+                        await signOut(auth);
+                    } catch (error) {
+                        console.error("Logout error:", error);
+                    }
+                }
+                
+                // Transaction management buttons
+                else if (targetId === 'save-transaction-btn') {
+                    saveTransaction(e);
+                } else if (targetId === 'delete-transaction-btn') {
+                    deleteTransaction();
+                } else if (targetId === 'cancel-edit-btn') {
+                    resetForm();
+                }
+
+                // Debt and utility buttons
+                else if (targetId === 'calculate-snowball') {
+                    calculateSnowball();
+                } else if (targetId === 'download-snowball') {
+                    exportSnowballPlan();
+                }
+            });
+
+            // Event listener for select changes to toggle fields
             typeSelect.addEventListener('change', toggleDebtFields);
-            calculateSnowballBtn.addEventListener('click', calculateSnowball);
-            downloadSnowballBtn.addEventListener('click', exportSnowballPlan);
-            logoutBtn.addEventListener('click', async () => {
-                try {
-                    await signOut(auth);
-                } catch (error) {
-                    console.error("Logout error:", error);
-                }
-            });
-
-            // Authentication form logic
-            showSignupBtn.addEventListener('click', () => {
-                loginForm.classList.add('hidden');
-                signupForm.classList.remove('hidden');
-            });
-
-            backToLoginBtn.addEventListener('click', () => {
-                loginForm.classList.remove('hidden');
-                signupForm.classList.add('hidden');
-            });
-
-            createAccountBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const email = signupEmailInput.value;
-                const password = signupPasswordInput.value;
-                try {
-                    await createUserWithEmailAndPassword(auth, email, password);
-                    showMessage('Account created successfully!', false, signupMessageBox);
-                } catch (error) {
-                    let message;
-                    switch (error.code) {
-                        case 'auth/weak-password':
-                            message = 'Password must be at least 6 characters long.';
-                            break;
-                        case 'auth/email-already-in-use':
-                            message = 'The email address is already in use.';
-                            break;
-                        case 'auth/invalid-email':
-                            message = 'The email address is not valid.';
-                            break;
-                        default:
-                            message = 'Sign up failed. Please try again.';
-                            console.error(error);
-                    }
-                    showMessage(message, true, signupMessageBox);
-                }
-            });
-
-            loginBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const email = loginEmailInput.value;
-                const password = loginPasswordInput.value;
-                try {
-                    await signInWithEmailAndPassword(auth, email, password);
-                } catch (error) {
-                    let message;
-                    switch (error.code) {
-                        case 'auth/wrong-password':
-                            message = 'Invalid password.';
-                            break;
-                        case 'auth/user-not-found':
-                            message = 'No account found with that email.';
-                            break;
-                        case 'auth/invalid-email':
-                            message = 'The email address is not valid.';
-                            break;
-                        default:
-                            message = 'Login failed. Please try again.';
-                            console.error(error);
-                    }
-                    showMessage(message, true, loginMessageBox);
-                }
-            });
 
             // Firebase Auth State Listener
             onAuthStateChanged(auth, (user) => {
