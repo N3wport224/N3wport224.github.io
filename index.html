@@ -1,681 +1,466 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Financial Tracker</title>
+    <title>Financial Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 md:p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-6 md:p-10">
+        <h1 class="text-3xl md:text-4xl font-bold text-center mb-6 text-gray-800">Financial Tracker</h1>
+        
+        <!-- User ID display for collaborative use -->
+        <p class="text-center text-sm text-gray-400 mb-4">
+            User ID: <span id="user-id" class="font-mono text-gray-600">Loading...</span>
+        </p>
+
+        <!-- Balance and Summary Section -->
+        <div class="flex flex-col md:flex-row justify-between items-center bg-gray-100 rounded-2xl p-6 mb-6">
+            <div class="text-center md:text-left mb-4 md:mb-0">
+                <p class="text-lg text-gray-600 font-medium">Current Balance</p>
+                <p id="total-balance" class="text-4xl md:text-5xl font-extrabold text-green-700 mt-1">$0.00</p>
+            </div>
+            <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-8">
+                <div class="text-center">
+                    <p class="text-base text-gray-600">Total Income</p>
+                    <p id="total-income" class="text-xl font-semibold text-green-600 mt-1">$0.00</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-base text-gray-600">Total Expenses</p>
+                    <p id="total-expenses" class="text-xl font-semibold text-red-600 mt-1">$0.00</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-base text-gray-600">Total Debt</p>
+                    <p id="total-debt" class="text-xl font-semibold text-purple-600 mt-1">$0.00</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Transaction Form -->
+        <div class="bg-gray-50 rounded-2xl p-6 md:p-8 mb-6">
+            <h2 class="text-2xl font-semibold text-center mb-6 text-gray-700">Add New Transaction</h2>
+            <form id="transaction-form" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                        <input type="text" id="description" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., Groceries, Salary" required>
+                    </div>
+                    <div>
+                        <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
+                        <input type="number" id="amount" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., 50.00" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="recurrence" class="block text-sm font-medium text-gray-700">Recurrence</label>
+                    <select id="recurrence" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                        <option value="none">None</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="biweekly">Bi-weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row justify-center md:justify-end space-y-2 sm:space-y-0 sm:space-x-4 mt-6">
+                    <button type="button" id="add-expense" class="bg-red-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-red-600 transition-colors">
+                        Add Expense
+                    </button>
+                    <button type="button" id="add-income" class="bg-green-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-green-600 transition-colors">
+                        Add Income
+                    </button>
+                    <button type="button" id="add-debt" class="bg-purple-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-purple-600 transition-colors">
+                        Add Debt
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Debt Snowball Tracker Section -->
+        <div class="bg-gray-50 rounded-2xl p-6 md:p-8 mb-6">
+            <h2 class="text-2xl font-semibold text-center mb-6 text-gray-700">Debt Snowball Tracker</h2>
+            <div class="flex flex-col md:flex-row items-center justify-center md:justify-start space-y-4 md:space-y-0 md:space-x-4">
+                <label for="extra-payment" class="text-sm font-medium text-gray-700">Monthly Extra Payment</label>
+                <div class="relative w-full md:w-auto">
+                    <input type="number" id="extra-payment" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 pl-8" value="0">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                </div>
+                <button id="calculate-snowball" class="bg-blue-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-blue-600 transition-colors">
+                    Calculate
+                </button>
+                <button id="download-snowball" class="bg-gray-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-gray-600 transition-colors">
+                    Download Plan
+                </button>
+            </div>
+            
+            <div id="snowball-results" class="mt-6 space-y-4">
+                <p class="text-center text-gray-500">Add some debts and an extra payment to calculate your plan.</p>
+            </div>
+        </div>
+
+        <!-- Transaction History Section -->
+        <div class="bg-gray-50 rounded-2xl p-6 md:p-8">
+            <h2 class="text-2xl font-semibold text-center mb-6 text-gray-700">Transaction History</h2>
+            <div id="transactions-list" class="space-y-4">
+                <!-- Transaction items will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
     <script type="module">
-        import {
-            initializeApp
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import {
-            getAuth,
-            signInAnonymously,
-            signInWithCustomToken,
-            onAuthStateChanged
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import {
-            getFirestore,
-            doc,
-            getDoc,
-            setDoc,
-            collection,
-            onSnapshot,
-            query,
-            addDoc,
-            deleteDoc
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, setDoc, deleteDoc, onSnapshot, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase variables provided by the environment
+        // Global variables provided by the environment
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : '';
 
-        let app, auth, db, userId;
-        let incomeChart, expenseChart, netWorthChart;
-        let state = {
-            income: [],
-            expenses: [],
-            debts: [],
-            assets: 0
-        };
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        let userId = '';
 
-        // --- Firebase Initialization and Authentication ---
-        const initFirebase = async () => {
-            if (!firebaseConfig) {
-                console.error("Firebase config is missing. Cannot initialize Firebase.");
-                return;
-            }
+        // Get DOM elements
+        const transactionForm = document.getElementById('transaction-form');
+        const descriptionInput = document.getElementById('description');
+        const amountInput = document.getElementById('amount');
+        const recurrenceSelect = document.getElementById('recurrence');
+        const addIncomeBtn = document.getElementById('add-income');
+        const addExpenseBtn = document.getElementById('add-expense');
+        const addDebtBtn = document.getElementById('add-debt');
+        const totalBalanceEl = document.getElementById('total-balance');
+        const totalIncomeEl = document.getElementById('total-income');
+        const totalExpensesEl = document.getElementById('total-expenses');
+        const totalDebtEl = document.getElementById('total-debt');
+        const transactionsListEl = document.getElementById('transactions-list');
+        const extraPaymentInput = document.getElementById('extra-payment');
+        const calculateSnowballBtn = document.getElementById('calculate-snowball');
+        const downloadSnowballBtn = document.getElementById('download-snowball');
+        const snowballResultsEl = document.getElementById('snowball-results');
+        const userIdEl = document.getElementById('user-id');
 
-            try {
-                app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
+        // Main data array
+        let transactions = [];
+        let debts = [];
 
-                const authStatePromise = new Promise((resolve) => {
-                    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-                        if (user) {
-                            userId = user.uid;
-                            document.getElementById('user-id-display').textContent = `User ID: ${userId}`;
-                            console.log("User signed in with UID:", userId);
-                            subscribeToData();
-                            resolve();
-                        } else {
-                            userId = null;
-                            console.log("No user signed in.");
-                            resolve();
-                        }
-                        unsubscribe();
-                    });
-                });
-
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                await authStatePromise;
-            } catch (error) {
-                console.error("Firebase init or auth error:", error);
-            }
-        };
-
-        const getBasePaths = () => {
-            if (!userId) {
-                console.error("User not authenticated.");
-                return null;
-            }
-            return {
-                userDocPath: `artifacts/${appId}/users/${userId}`,
-                incomeCol: `artifacts/${appId}/users/${userId}/income`,
-                expenseCol: `artifacts/${appId}/users/${userId}/expenses`,
-                debtCol: `artifacts/${appId}/users/${userId}/debts`,
-            };
-        };
-
-        const subscribeToData = () => {
-            if (!userId) {
-                console.error("Cannot subscribe, userId is not set.");
-                return;
-            }
-            const paths = getBasePaths();
-            onSnapshot(collection(db, paths.incomeCol), (snapshot) => {
-                state.income = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                updateUI();
-            });
-            onSnapshot(collection(db, paths.expenseCol), (snapshot) => {
-                state.expenses = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                updateUI();
-            });
-            onSnapshot(collection(db, paths.debtCol), (snapshot) => {
-                state.debts = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                updateUI();
-            });
-        };
-
-        // --- Application State and Data Management ---
+        // Function to format currency
         const formatCurrency = (amount) => {
             return new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: 'USD',
-                minimumFractionDigits: 2
             }).format(amount);
         };
 
-        const calculateSummary = () => {
-            const totalIncome = state.income.reduce((sum, item) => sum + item.amount, 0);
-            const totalExpenses = state.expenses.reduce((sum, item) => sum + item.amount, 0);
-            const totalDebt = state.debts.reduce((sum, item) => item.balance > 0 ? sum + item.balance : sum, 0);
-            const minimumPayments = state.debts.reduce((sum, debt) => debt.minPayment > 0 ? sum + debt.minPayment : sum, 0);
-            const disposableIncome = totalIncome - totalExpenses - minimumPayments;
-            const netWorth = state.assets - totalDebt;
+        // Function to update the summary totals
+        const updateSummary = () => {
+            const totalIncome = transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
 
-            return {
-                totalIncome,
-                totalExpenses,
-                totalDebt,
-                disposableIncome,
-                netWorth
-            };
-        };
-
-        const renderUI = () => {
-            const summary = calculateSummary();
-            // Render summary section
-            document.getElementById('total-income').textContent = formatCurrency(summary.totalIncome);
-            document.getElementById('total-expenses').textContent = formatCurrency(summary.totalExpenses);
-            document.getElementById('total-debt').textContent = formatCurrency(summary.totalDebt);
-            document.getElementById('net-worth').textContent = formatCurrency(summary.netWorth);
-
-            // Render transactions
-            renderList('income', state.income, 'income-list');
-            renderList('expense', state.expenses, 'expense-list');
-            renderDebtList(state.debts);
+            const totalExpenses = transactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
             
-            // Update charts
-            updateCharts(summary);
+            const totalDebt = transactions
+                .filter(t => t.type === 'debt')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            const totalBalance = totalIncome - totalExpenses - totalDebt;
+
+            totalBalanceEl.textContent = formatCurrency(totalBalance);
+            totalIncomeEl.textContent = formatCurrency(totalIncome);
+            totalExpensesEl.textContent = formatCurrency(totalExpenses);
+            totalDebtEl.textContent = formatCurrency(totalDebt);
+
+            if (totalBalance < 0) {
+                totalBalanceEl.classList.remove('text-green-700');
+                totalBalanceEl.classList.add('text-red-700');
+            } else {
+                totalBalanceEl.classList.remove('text-red-700');
+                totalBalanceEl.classList.add('text-green-700');
+            }
         };
 
-        const renderList = (type, data, elementId) => {
-            const list = document.getElementById(elementId);
-            list.innerHTML = '';
-            data.forEach(item => {
-                const itemEl = document.createElement('div');
-                itemEl.className = 'flex justify-between items-center p-3 rounded-lg bg-gray-100';
-                itemEl.innerHTML = `
-                    <div class="flex-grow">
-                        <p class="font-semibold">${item.description}</p>
-                        <p class="text-sm text-gray-500">${new Date(item.date).toLocaleDateString()}</p>
-                        ${item.recurring ? '<p class="text-xs text-accent">Recurring</p>' : ''}
+        // Function to render transactions in the history list
+        const renderTransactions = () => {
+            transactionsListEl.innerHTML = '';
+            if (transactions.length === 0) {
+                transactionsListEl.innerHTML = '<p class="text-center text-gray-500">No transactions added yet.</p>';
+                return;
+            }
+
+            transactions.forEach((transaction) => {
+                let bgColor, textColor, sign, iconColor;
+
+                if (transaction.type === 'income') {
+                    bgColor = 'bg-green-50';
+                    textColor = 'text-green-600';
+                    sign = '+';
+                    iconColor = 'text-green-400';
+                } else if (transaction.type === 'expense') {
+                    bgColor = 'bg-red-50';
+                    textColor = 'text-red-600';
+                    sign = '-';
+                    iconColor = 'text-red-400';
+                } else if (transaction.type === 'debt') {
+                    bgColor = 'bg-purple-50';
+                    textColor = 'text-purple-600';
+                    sign = '-';
+                    iconColor = 'text-purple-400';
+                }
+
+                const transactionEl = document.createElement('div');
+                transactionEl.className = `flex justify-between items-center p-4 rounded-xl shadow-sm transition-all duration-300 ${bgColor}`;
+
+                let recurrenceText = '';
+                if (transaction.recurrence && transaction.recurrence !== 'none') {
+                    recurrenceText = `<span class="text-xs text-gray-500 ml-2">(${transaction.recurrence})</span>`;
+                }
+
+                transactionEl.innerHTML = `
+                    <div class="flex flex-col">
+                        <p class="text-gray-800 font-medium">${transaction.description} ${recurrenceText}</p>
+                        <p class="text-sm text-gray-500">${new Date(transaction.date).toLocaleDateString()}</p>
                     </div>
-                    <span class="font-bold ${type === 'income' ? 'text-green-600' : 'text-red-600'}">
-                        ${formatCurrency(item.amount)}
-                    </span>
-                    <button onclick="removeItem('${type}', '${item.id}')" class="ml-2 text-red-500 hover:text-red-700 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
-                        </svg>
-                    </button>
-                `;
-                list.appendChild(itemEl);
-            });
-        };
-
-        const renderDebtList = (data) => {
-            const list = document.getElementById('debt-list');
-            list.innerHTML = '';
-            data.forEach(debt => {
-                const debtEl = document.createElement('div');
-                const progress = ((debt.originalBalance - debt.balance) / debt.originalBalance) * 100;
-                debtEl.className = 'p-4 rounded-lg bg-gray-100 shadow-sm';
-                debtEl.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-lg font-semibold text-primary">${debt.name}</h3>
-                        <button onclick="removeDebt('${debt.id}')" class="text-red-500 hover:text-red-700 transition-colors">
+                    <div class="flex items-center space-x-2">
+                        <p class="text-lg font-semibold ${textColor}">
+                            ${sign} ${formatCurrency(transaction.amount)}
+                        </p>
+                        <button class="remove-btn text-gray-400 hover:text-red-500 transition-colors" data-id="${transaction.id}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 11-2 0v6a1 1 0 112 0V8z" clip-rule="evenodd" />
                             </svg>
                         </button>
                     </div>
-                    <div class="w-full bg-gray-300 rounded-full h-2.5 mb-2">
-                        <div class="bg-primary h-2.5 rounded-full" style="width: ${progress.toFixed(2)}%"></div>
-                    </div>
-                    <p class="text-sm">Balance: <span class="font-bold">${formatCurrency(debt.balance)}</span></p>
-                    <p class="text-sm">Interest Rate: <span class="font-bold">${debt.interestRate}%</span></p>
-                    <p class="text-sm">Minimum Payment: <span class="font-bold">${formatCurrency(debt.minPayment)}</span></p>
-                    <p class="text-sm">Due Date: <span class="font-bold">${new Date(debt.dueDate).toLocaleDateString()}</span></p>
-                    
-                    <div class="mt-4 pt-2 border-t border-gray-200 flex flex-col sm:flex-row gap-2">
-                        <input type="number" placeholder="Add Interest ($)" id="interest-${debt.id}" class="flex-grow p-2 rounded-lg border border-gray-300 text-sm">
-                        <input type="number" placeholder="Make Payment ($)" id="payment-${debt.id}" class="flex-grow p-2 rounded-lg border border-gray-300 text-sm">
-                        <button onclick="updateDebt('${debt.id}')" class="bg-gray-300 text-gray-700 p-2 rounded-lg text-sm font-semibold hover:bg-gray-400 transition-colors">Update</button>
-                    </div>
                 `;
-                list.appendChild(debtEl);
+                transactionsListEl.appendChild(transactionEl);
             });
-        };
 
-        const updateCharts = (summary) => {
-            const monthlyData = calculateMonthlyData();
-            const monthlyLabels = Object.keys(monthlyData);
-            const monthlyNetWorth = monthlyLabels.map(month => monthlyData[month].netWorth);
-
-            const incomeData = monthlyLabels.map(month => monthlyData[month].income);
-            const expenseData = monthlyLabels.map(month => monthlyData[month].expenses);
-
-            if (incomeChart) incomeChart.destroy();
-            if (netWorthChart) netWorthChart.destroy();
-            
-            const incomeExpenseCtx = document.getElementById('incomeExpenseChart').getContext('2d');
-            incomeChart = new Chart(incomeExpenseCtx, {
-                type: 'bar',
-                data: {
-                    labels: monthlyLabels,
-                    datasets: [{
-                        label: 'Income',
-                        data: incomeData,
-                        backgroundColor: '#10b981',
-                    }, {
-                        label: 'Expenses',
-                        data: expenseData,
-                        backgroundColor: '#ef4444',
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+            // Add event listeners to remove buttons
+            document.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    const docRef = doc(db, 'artifacts', appId, 'users', userId, 'transactions', id);
+                    try {
+                        await deleteDoc(docRef);
+                    } catch (e) {
+                        console.error("Error removing document: ", e);
                     }
-                }
-            });
-
-            const netWorthCtx = document.getElementById('netWorthChart').getContext('2d');
-            netWorthChart = new Chart(netWorthCtx, {
-                type: 'line',
-                data: {
-                    labels: monthlyLabels,
-                    datasets: [{
-                        label: 'Net Worth',
-                        data: monthlyNetWorth,
-                        borderColor: '#1d4ed8',
-                        backgroundColor: 'rgba(29, 78, 216, 0.2)',
-                        fill: true,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
+                });
             });
         };
 
-        const calculateMonthlyData = () => {
-            const data = {};
-            const today = new Date();
-            const currentMonth = today.getMonth();
-            const currentYear = today.getFullYear();
-            const twoYearsAgo = new Date(currentYear - 2, currentMonth, today.getDate());
-
-            const allTransactions = [...state.income.map(t => ({...t, type: 'income'})), ...state.expenses.map(t => ({...t, type: 'expense'}))];
-            
-            allTransactions.forEach(t => {
-                const date = new Date(t.date);
-                if (date < twoYearsAgo) return;
-
-                const monthYear = `${date.getMonth() + 1}/${date.getFullYear()}`;
-                if (!data[monthYear]) {
-                    data[monthYear] = { income: 0, expenses: 0, netWorth: 0 };
-                }
-
-                if (t.type === 'income') {
-                    data[monthYear].income += t.amount;
-                } else {
-                    data[monthYear].expenses += t.amount;
-                }
-            });
-            
-            let cumulativeNetWorth = 0;
-            const sortedMonths = Object.keys(data).sort((a,b) => {
-                const [monthA, yearA] = a.split('/').map(Number);
-                const [monthB, yearB] = b.split('/').map(Number);
-                return (yearA * 12 + monthA) - (yearB * 12 + monthB);
-            });
-            
-            sortedMonths.forEach(month => {
-                const monthlyChange = data[month].income - data[month].expenses;
-                cumulativeNetWorth += monthlyChange;
-                data[month].netWorth = cumulativeNetWorth;
-            });
-            return data;
-        };
-
-        const updateUI = () => {
-            if (userId) {
-                renderUI();
-            }
-        };
-
-        // --- Firebase Interaction (CRUD) ---
-        const addItem = async (type) => {
+        // Function to add a transaction to Firestore
+        const addTransaction = async (type) => {
             if (!userId) {
-                alert("Please wait for authentication to complete.");
+                console.error("User not authenticated.");
                 return;
             }
-            const paths = getBasePaths();
-            const descriptionInput = document.getElementById(`${type}-description`);
-            const amountInput = document.getElementById(`${type}-amount`);
-            const isRecurring = document.getElementById(`${type}-recurring`).checked;
+
             const description = descriptionInput.value.trim();
             const amount = parseFloat(amountInput.value);
-            
-            if (description && amount > 0) {
-                const newItem = {
-                    description: description,
-                    amount: amount,
-                    date: new Date().toISOString(),
-                    recurring: isRecurring
+            const recurrence = recurrenceSelect.value;
+            const date = new Date().toISOString();
+
+            if (description && !isNaN(amount) && amount > 0) {
+                const newTransaction = {
+                    description,
+                    amount,
+                    type,
+                    recurrence,
+                    date
                 };
+                
                 try {
-                    await addDoc(collection(db, type === 'income' ? paths.incomeCol : paths.expenseCol), newItem);
-                    descriptionInput.value = '';
-                    amountInput.value = '';
-                    document.getElementById(`${type}-recurring`).checked = false;
+                    const collectionRef = collection(db, 'artifacts', appId, 'users', userId, 'transactions');
+                    await addDoc(collectionRef, newTransaction);
+                    // UI will be updated by the onSnapshot listener
                 } catch (e) {
                     console.error("Error adding document: ", e);
                 }
+                
+                // Clear the form
+                transactionForm.reset();
             } else {
-                alert('Please enter a valid description and amount.');
+                // A custom modal would be better than an alert, but for now...
+                window.alert('Please enter a valid description and amount.');
             }
         };
 
-        const removeItem = async (type, docId) => {
-            if (!userId) {
-                alert("Please wait for authentication to complete.");
-                return;
-            }
-            const paths = getBasePaths();
-            try {
-                await deleteDoc(doc(db, type === 'income' ? paths.incomeCol : paths.expenseCol, docId));
-            } catch (e) {
-                console.error("Error removing document: ", e);
-            }
-        };
-
-        const addDebt = async () => {
-            if (!userId) {
-                alert("Please wait for authentication to complete.");
-                return;
-            }
-            const paths = getBasePaths();
-            const name = document.getElementById('debt-name').value.trim();
-            const balance = parseFloat(document.getElementById('debt-balance').value);
-            const interest = parseFloat(document.getElementById('debt-interest').value);
-            const minPayment = parseFloat(document.getElementById('debt-min-payment').value);
-            const dueDate = document.getElementById('debt-due-date').value;
+        // Debt Snowball Tracker Logic
+        const calculateSnowball = () => {
+            snowballResultsEl.innerHTML = '';
             
-            if (name && balance > 0 && interest >= 0 && minPayment > 0 && dueDate) {
-                const newDebt = {
-                    name: name,
-                    balance: balance,
-                    interestRate: interest,
-                    minPayment: minPayment,
-                    dueDate: dueDate,
-                    originalBalance: balance
-                };
+            // Get current debts from the main transactions array
+            let debts = transactions.filter(t => t.type === 'debt');
+            if (debts.length === 0) {
+                snowballResultsEl.innerHTML = '<p class="text-center text-gray-500">No debts to track. Add some debt transactions first!</p>';
+                return;
+            }
+
+            // Sort debts from smallest to largest balance
+            debts.sort((a, b) => a.amount - b.amount);
+
+            let extraPayment = parseFloat(extraPaymentInput.value);
+            if (isNaN(extraPayment) || extraPayment < 0) {
+                extraPayment = 0;
+            }
+
+            const startDate = new Date();
+            let monthCounter = 0;
+            let snowballPayment = extraPayment;
+            let results = [];
+
+            // Iterate through each debt
+            for (let i = 0; i < debts.length; i++) {
+                let currentDebt = { ...debts[i] };
+                let monthsToPayoff = 0;
+                let balance = currentDebt.amount;
+                
+                // Simulate payments month by month
+                while (balance > 0) {
+                    monthsToPayoff++;
+                    balance -= snowballPayment;
+                    if (balance <= 0) {
+                        // This debt is paid off, add its regular payment to the snowball for the next debt
+                        snowballPayment += 0; // Assuming no regular payments for simplicity
+                    }
+                }
+                
+                monthCounter += monthsToPayoff;
+                const payoffDate = new Date(startDate.getFullYear(), startDate.getMonth() + monthCounter, startDate.getDate());
+                
+                results.push({
+                    description: currentDebt.description,
+                    amount: currentDebt.amount,
+                    payoffDate: payoffDate,
+                    months: monthCounter
+                });
+            }
+
+            // Render the results
+            results.forEach(result => {
+                const resultEl = document.createElement('div');
+                resultEl.className = 'p-4 rounded-xl bg-blue-50 shadow-sm';
+                resultEl.innerHTML = `
+                    <p class="text-gray-800 font-medium">${result.description}</p>
+                    <p class="text-sm text-gray-600">Original Amount: ${formatCurrency(result.amount)}</p>
+                    <p class="text-lg font-semibold text-blue-600">
+                        Payoff Date: ${result.payoffDate.toLocaleDateString()}
+                    </p>
+                    <p class="text-sm text-gray-500">${result.months} months to payoff</p>
+                `;
+                snowballResultsEl.appendChild(resultEl);
+            });
+        };
+
+        // Function to export the debt plan as a CSV file
+        const exportSnowballPlan = () => {
+            const extraPayment = parseFloat(extraPaymentInput.value) || 0;
+            
+            // Get debts from the main transactions array
+            let debts = transactions.filter(t => t.type === 'debt');
+            if (debts.length === 0) {
+                window.alert('No debts to export.');
+                return;
+            }
+            debts.sort((a, b) => a.amount - b.amount);
+
+            // Headers for the CSV
+            let csvContent = "data:text/csv;charset=utf-8,Debt Description,Original Amount,Payoff Date,Months to Payoff,Monthly Extra Payment\n";
+            let snowballPayment = extraPayment;
+            let monthCounter = 0;
+            const startDate = new Date();
+
+            debts.forEach(debt => {
+                let balance = debt.amount;
+                let monthsToPayoff = 0;
+                
+                while (balance > 0) {
+                    monthsToPayoff++;
+                    balance -= snowballPayment;
+                    if (balance <= 0) {
+                        snowballPayment += 0; // Assuming no regular payments
+                    }
+                }
+                
+                monthCounter += monthsToPayoff;
+                const payoffDate = new Date(startDate.getFullYear(), startDate.getMonth() + monthCounter, startDate.getDate());
+
+                // Format the row for the CSV
+                const row = [
+                    `"${debt.description.replace(/"/g, '""')}"`, // Handle commas and quotes
+                    debt.amount,
+                    `"${payoffDate.toLocaleDateString()}"`,
+                    monthCounter,
+                    extraPayment
+                ].join(',');
+                csvContent += row + '\n';
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "debt_snowball_plan.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        // Event listeners for the buttons
+        addIncomeBtn.addEventListener('click', () => addTransaction('income'));
+        addExpenseBtn.addEventListener('click', () => addTransaction('expense'));
+        addDebtBtn.addEventListener('click', () => addTransaction('debt'));
+        calculateSnowballBtn.addEventListener('click', calculateSnowball);
+        downloadSnowballBtn.addEventListener('click', exportSnowballPlan);
+
+        // Firebase Auth and Firestore setup
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid;
+                userIdEl.textContent = userId;
+                // Set up real-time listener for transactions
+                const collectionRef = collection(db, 'artifacts', appId, 'users', userId, 'transactions');
+                const q = query(collectionRef);
+
+                onSnapshot(q, (snapshot) => {
+                    transactions = [];
+                    snapshot.forEach((doc) => {
+                        transactions.push({ id: doc.id, ...doc.data() });
+                    });
+                    renderTransactions();
+                    updateSummary();
+                    // Re-calculate the snowball whenever data changes
+                    calculateSnowball();
+                });
+            } else {
                 try {
-                    await addDoc(collection(db, paths.debtCol), newDebt);
-                    document.getElementById('debt-name').value = '';
-                    document.getElementById('debt-balance').value = '';
-                    document.getElementById('debt-interest').value = '';
-                    document.getElementById('debt-min-payment').value = '';
-                    document.getElementById('debt-due-date').value = '';
-                } catch (e) {
-                    console.error("Error adding debt: ", e);
-                }
-            } else {
-                alert('Please fill out all debt fields correctly.');
-            }
-        };
-
-        const removeDebt = async (docId) => {
-            if (!userId) {
-                alert("Please wait for authentication to complete.");
-                return;
-            }
-            const paths = getBasePaths();
-            try {
-                await deleteDoc(doc(db, paths.debtCol, docId));
-            } catch (e) {
-                console.error("Error removing debt: ", e);
-            }
-        };
-        
-        const updateDebt = async (docId) => {
-            if (!userId) {
-                alert("Please wait for authentication to complete.");
-                return;
-            }
-            const paths = getBasePaths();
-            const interestInput = document.getElementById(`interest-${docId}`);
-            const paymentInput = document.getElementById(`payment-${docId}`);
-            
-            const interest = parseFloat(interestInput.value) || 0;
-            const payment = parseFloat(paymentInput.value) || 0;
-            
-            if (interest > 0 || payment > 0) {
-                const debtRef = doc(db, paths.debtCol, docId);
-                const debtSnap = await getDoc(debtRef);
-                if (debtSnap.exists()) {
-                    const currentBalance = debtSnap.data().balance;
-                    const newBalance = currentBalance + interest - payment;
-                    await setDoc(debtRef, { balance: newBalance }, { merge: true });
-                    interestInput.value = '';
-                    paymentInput.value = '';
-                }
-            }
-        };
-
-        const calculatePayoff = () => {
-            const strategy = document.getElementById('payoff-strategy').value;
-            const extraPayment = parseFloat(document.getElementById('extra-payment').value) || 0;
-            const resultsEl = document.getElementById('payoff-results');
-
-            if (state.debts.length === 0) {
-                resultsEl.innerHTML = '<p class="text-center text-red-500">Please add at least one debt to calculate.</p>';
-                resultsEl.classList.remove('hidden');
-                return;
-            }
-
-            const debtsToPay = JSON.parse(JSON.stringify(state.debts)); // Deep copy
-            if (strategy === 'avalanche') {
-                debtsToPay.sort((a, b) => b.interestRate - a.interestRate);
-            } else {
-                debtsToPay.sort((a, b) => a.balance - b.balance);
-            }
-
-            let totalMonths = 0;
-            let totalInterestPaid = 0;
-            let monthlyPayments = state.debts.reduce((sum, debt) => sum + debt.minPayment, 0);
-            let extraMonthlyPayment = extraPayment;
-
-            while (debtsToPay.some(d => d.balance > 0)) {
-                totalMonths++;
-                let totalAvailableForPayment = monthlyPayments + extraMonthlyPayment;
-                
-                for (const debt of debtsToPay) {
-                    if (debt.balance <= 0) continue;
-
-                    let interestForMonth = (debt.balance * (debt.interestRate / 100)) / 12;
-                    totalInterestPaid += interestForMonth;
-                    debt.balance += interestForMonth;
-
-                    let payment = 0;
-                    if (totalAvailableForPayment >= debt.minPayment) {
-                        payment = debt.minPayment;
-                        totalAvailableForPayment -= payment;
+                    if (initialAuthToken) {
+                        await signInWithCustomToken(auth, initialAuthToken);
                     } else {
-                        payment = totalAvailableForPayment;
-                        totalAvailableForPayment = 0;
+                        await signInAnonymously(auth);
                     }
-
-                    if (totalAvailableForPayment > 0) {
-                        const amountToPayoff = Math.min(totalAvailableForPayment, debt.balance);
-                        payment += amountToPayoff;
-                        totalAvailableForPayment -= amountToPayoff;
-                    }
-
-                    if (debt.balance > payment) {
-                        debt.balance -= payment;
-                    } else {
-                        const previousMinPayment = debt.minPayment;
-                        debt.balance = 0;
-                        monthlyPayments -= previousMinPayment;
-                        extraMonthlyPayment += previousMinPayment;
-                    }
-
-                    if (totalAvailableForPayment <= 0) break;
+                } catch (error) {
+                    console.error("Authentication error:", error);
+                    userIdEl.textContent = 'Error';
                 }
-                
-                if (totalMonths > 1200) break; // Safety break for infinite loops
             }
-            
-            resultsEl.innerHTML = `
-                <p class="font-bold text-center text-primary mb-2">Payoff Results</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
-                    <div class="p-4 bg-white rounded-lg shadow-inner">
-                        <p class="font-semibold text-lg">${totalMonths} Months</p>
-                        <p class="text-sm">Time to Payoff</p>
-                    </div>
-                    <div class="p-4 bg-white rounded-lg shadow-inner">
-                        <p class="font-semibold text-lg">${formatCurrency(totalInterestPaid)}</p>
-                        <p class="text-sm">Total Interest Paid</p>
-                    </div>
-                </div>
-            `;
-            resultsEl.classList.remove('hidden');
-        };
-
-
-        // Expose functions to the global scope for event handlers
-        window.addItem = addItem;
-        window.removeItem = removeItem;
-        window.addDebt = addDebt;
-        window.removeDebt = removeDebt;
-        window.updateDebt = updateDebt;
-        window.calculatePayoff = calculatePayoff;
-
-        // Initial setup
-        document.addEventListener('DOMContentLoaded', initFirebase);
+        });
     </script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-
-        ::-webkit-scrollbar {
-            display: none;
-        }
-        
-        .scrollable-list {
-            max-height: 250px;
-            overflow-y: auto;
-        }
-    </style>
-</head>
-
-<body class="bg-background text-secondary p-4 sm:p-8">
-    <div class="max-w-6xl mx-auto space-y-8">
-        <!-- Header and Summary Section -->
-        <header class="bg-card p-6 rounded-xl shadow-md">
-            <h1 class="text-3xl font-bold text-primary text-center mb-2">Advanced Financial Tracker</h1>
-            <p class="text-center text-sm mb-4">Your personal dashboard for managing income, expenses, and debt.</p>
-            <p id="user-id-display" class="text-xs text-center text-gray-400"></p>
-
-            <div id="summary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center mt-4">
-                <div class="bg-primary text-white p-4 rounded-lg shadow-inner">
-                    <p class="text-xl font-bold" id="total-income">$0.00</p>
-                    <p class="text-sm">Total Income</p>
-                </div>
-                <div class="bg-red-500 text-white p-4 rounded-lg shadow-inner">
-                    <p class="text-xl font-bold" id="total-expenses">$0.00</p>
-                    <p class="text-sm">Total Expenses</p>
-                </div>
-                <div class="bg-secondary text-white p-4 rounded-lg shadow-inner">
-                    <p class="text-xl font-bold" id="total-debt">$0.00</p>
-                    <p class="text-sm">Total Debt</p>
-                </div>
-                <div class="bg-green-500 text-white p-4 rounded-lg shadow-inner">
-                    <p class="text-xl font-bold" id="net-worth">$0.00</p>
-                    <p class="text-sm">Net Worth</p>
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Content Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Data Visualization Section -->
-            <section class="bg-card p-6 rounded-xl shadow-md lg:col-span-2">
-                <h2 class="text-2xl font-semibold text-primary mb-4">Financial Overview</h2>
-                <div class="space-y-6">
-                    <div>
-                        <h3 class="text-xl font-semibold mb-2">Net Worth Over Time</h3>
-                        <canvas id="netWorthChart"></canvas>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-semibold mb-2">Monthly Income vs. Expenses</h3>
-                        <canvas id="incomeExpenseChart"></canvas>
-                    </div>
-                </div>
-            </section>
-        
-            <!-- Income and Expenses Section -->
-            <section class="lg:col-span-1 space-y-6">
-                <!-- Income Card -->
-                <div class="bg-card p-6 rounded-xl shadow-md">
-                    <h2 class="text-2xl font-semibold text-primary mb-4">Income</h2>
-                    <div class="flex flex-col gap-2 mb-4">
-                        <input type="text" id="income-description" placeholder="Description (e.g., Paycheck)" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary">
-                        <input type="number" id="income-amount" placeholder="Amount" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary">
-                        <div class="flex items-center space-x-2">
-                            <input type="checkbox" id="income-recurring" class="text-primary rounded focus:ring-primary">
-                            <label for="income-recurring" class="text-sm">Recurring</label>
-                        </div>
-                        <button onclick="addItem('income')" class="bg-primary text-white p-2 rounded-lg font-bold hover:bg-blue-700 transition-colors">Add Income</button>
-                    </div>
-                    <div id="income-list" class="scrollable-list space-y-2"></div>
-                </div>
-
-                <!-- Expenses Card -->
-                <div class="bg-card p-6 rounded-xl shadow-md">
-                    <h2 class="text-2xl font-semibold text-primary mb-4">Expenses</h2>
-                    <div class="flex flex-col gap-2 mb-4">
-                        <input type="text" id="expense-description" placeholder="Description (e.g., Rent)" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary">
-                        <input type="number" id="expense-amount" placeholder="Amount" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary">
-                        <div class="flex items-center space-x-2">
-                            <input type="checkbox" id="expense-recurring" class="text-primary rounded focus:ring-primary">
-                            <label for="expense-recurring" class="text-sm">Recurring</label>
-                        </div>
-                        <button onclick="addItem('expense')" class="bg-red-500 text-white p-2 rounded-lg font-bold hover:bg-red-700 transition-colors">Add Expense</button>
-                    </div>
-                    <div id="expense-list" class="scrollable-list space-y-2"></div>
-                </div>
-            </section>
-        </div>
-
-        <!-- Debt Management Section -->
-        <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Add Debt Card -->
-            <div class="bg-card p-6 rounded-xl shadow-md">
-                <h2 class="text-2xl font-semibold text-primary mb-4">Add Debt</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" id="debt-name" placeholder="Credit Card / Loan Name" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary col-span-2">
-                    <input type="number" id="debt-balance" placeholder="Current Balance ($)" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary">
-                    <input type="number" id="debt-interest" placeholder="Interest Rate (%)" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary">
-                    <input type="number" id="debt-min-payment" placeholder="Minimum Payment ($)" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary">
-                    <input type="date" id="debt-due-date" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary">
-                    <button onclick="addDebt()" class="bg-primary text-white p-2 rounded-lg font-bold hover:bg-blue-700 transition-colors col-span-2">Add Debt</button>
-                </div>
-            </div>
-
-            <!-- Debt Payoff Calculator & List -->
-            <div class="bg-card p-6 rounded-xl shadow-md">
-                <h2 class="text-2xl font-semibold text-primary mb-4">Debt List</h2>
-                <div id="debt-list" class="scrollable-list space-y-4"></div>
-
-                <div class="mt-6 border-t border-gray-200 pt-6">
-                    <h3 class="text-xl font-semibold mb-3">Debt Payoff Strategy</h3>
-                    <div class="flex flex-col sm:flex-row gap-4 mb-4">
-                        <select id="payoff-strategy" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary flex-grow">
-                            <option value="avalanche">Debt Avalanche (Highest Interest First)</option>
-                            <option value="snowball">Debt Snowball (Smallest Balance First)</option>
-                        </select>
-                        <input type="number" id="extra-payment" placeholder="Extra Payment ($)" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary w-full sm:w-36">
-                    </div>
-                    <button onclick="calculatePayoff()" class="bg-accent text-white p-2 rounded-lg font-bold hover:bg-yellow-600 transition-colors w-full">Calculate Payoff</button>
-                    <div id="payoff-results" class="mt-4 p-4 bg-gray-100 rounded-lg hidden"></div>
-                </div>
-            </div>
-        </section>
-    </div>
 </body>
-
 </html>
+
