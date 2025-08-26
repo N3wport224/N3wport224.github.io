@@ -205,7 +205,7 @@
     <script type="module">
         // Firebase imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, addDoc, deleteDoc, setDoc, onSnapshot, collection, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // IMPORTANT: These variables are automatically provided by the platform. Do not modify them.
@@ -626,7 +626,8 @@
             signupForm.classList.add('hidden');
         });
 
-        createAccountBtn.addEventListener('click', async () => {
+        createAccountBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
             const email = signupEmailInput.value;
             const password = signupPasswordInput.value;
             try {
@@ -652,7 +653,8 @@
             }
         });
 
-        loginBtn.addEventListener('click', async () => {
+        loginBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
             const email = loginEmailInput.value;
             const password = loginPasswordInput.value;
             try {
@@ -723,6 +725,18 @@
                 }
             }
         });
+
+        // Initial sign-in with the custom token if available
+        if (initialAuthToken) {
+            signInWithCustomToken(auth, initialAuthToken).catch((error) => {
+                console.error("Custom token sign-in failed:", error);
+            });
+        } else {
+            // Fallback for environments without the token
+            signInAnonymously(auth).catch((error) => {
+                console.error("Anonymous sign-in failed:", error);
+            });
+        }
         
     </script>
 </body>
