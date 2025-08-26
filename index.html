@@ -184,9 +184,12 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, addDoc, deleteDoc, onSnapshot, collection, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Global variables provided by the environment
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        // IMPORTANT: Replace the empty object below with YOUR Firebase project's config object.
+        // You can find this in your Firebase Console under Project settings -> General.
+        const firebaseConfig = {};
+
+        // You should also update this app ID to a unique name for your project, e.g., 'my-financial-tracker'
+        const appId = 'default-app-id';
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
