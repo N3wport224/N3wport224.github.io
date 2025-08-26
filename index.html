@@ -475,7 +475,22 @@
             try {
                 await createUserWithEmailAndPassword(auth, email, password);
             } catch (error) {
-                showMessage(error.message, true, authMessageBox);
+                let message;
+                switch (error.code) {
+                    case 'auth/weak-password':
+                        message = 'Password must be at least 6 characters long.';
+                        break;
+                    case 'auth/email-already-in-use':
+                        message = 'The email address is already in use.';
+                        break;
+                    case 'auth/invalid-email':
+                        message = 'The email address is not valid.';
+                        break;
+                    default:
+                        message = 'Sign up failed. Please try again.';
+                        console.error(error);
+                }
+                showMessage(message, true, authMessageBox);
             }
         });
 
@@ -485,7 +500,22 @@
             try {
                 await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
-                showMessage(error.message, true, authMessageBox);
+                let message;
+                switch (error.code) {
+                    case 'auth/wrong-password':
+                        message = 'Invalid password.';
+                        break;
+                    case 'auth/user-not-found':
+                        message = 'No account found with that email.';
+                        break;
+                    case 'auth/invalid-email':
+                        message = 'The email address is not valid.';
+                        break;
+                    default:
+                        message = 'Login failed. Please try again.';
+                        console.error(error);
+                }
+                showMessage(message, true, authMessageBox);
             }
         });
 
