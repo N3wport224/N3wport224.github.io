@@ -198,21 +198,27 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, addDoc, deleteDoc, setDoc, onSnapshot, collection, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // IMPORTANT: Replace with your actual Firebase project configuration
+        // You can find this in your Firebase Console under Project settings -> General.
         const firebaseConfig = {
-          apiKey: "YOUR_API_KEY",
-          authDomain: "YOUR_AUTH_DOMAIN",
-          projectId: "YOUR_PROJECT_ID",
-          storageBucket: "YOUR_STORAGE_BUCKET",
-          messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-          appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyDAMs4fq-aM3YJuBux2v4XRirGXGtW_bt4",
+            authDomain: "financial-tracker-705f1.firebaseapp.com",
+            projectId: "financial-tracker-705f1",
+            storageBucket: "financial-tracker-705f1.firebasestorage.app",
+            messagingSenderId: "284361332931",
+            appId: "1:284361332931:web:b287647d246eb70a49aa76",
+            measurementId: "G-VLF5B7LN6B"
         };
-        
-        let app, db, auth;
+
+        // You should also update this app ID to a unique name for your project, e.g., 'my-financial-tracker'
+        const appId = 'financial-tracker-705f1';
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
         let userId = '';
         let unsubscribeFromTransactions = null;
-        let editingTransactionId = null;
-
+        
         // Get DOM elements for auth and tracker sections
         const authSection = document.getElementById('auth-section');
         const trackerSection = document.getElementById('tracker-section');
