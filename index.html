@@ -18,28 +18,51 @@
 </head>
 <body class="bg-gray-100 min-h-screen p-4 md:p-8">
     <div class="max-w-4xl mx-auto">
-        <!-- Login/Signup Form Section (Visible by default) -->
+        <!-- Main Authentication Section (Visible by default) -->
         <div id="auth-section" class="bg-white rounded-2xl shadow-lg p-6 md:p-10 max-w-md mx-auto">
             <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Welcome</h1>
             <p class="text-center text-gray-600 mb-8">Sign in or create an account to start tracking your finances.</p>
 
-            <form id="auth-form" class="space-y-4">
+            <!-- Login Form -->
+            <form id="login-form" class="space-y-4">
                 <div>
-                    <label for="auth-email" class="block text-sm font-medium text-gray-700">Email Address</label>
-                    <input type="email" id="auth-email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" required>
+                    <label for="login-email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                    <input type="email" id="login-email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" required>
                 </div>
                 <div>
-                    <label for="auth-password" class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" id="auth-password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" required>
+                    <label for="login-password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="login-password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" required>
                 </div>
-                <div id="auth-message" class="hidden text-center text-sm font-medium text-red-500 mt-2"></div>
+                <div id="login-message" class="hidden text-center text-sm font-medium text-red-500 mt-2"></div>
                 
                 <div class="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4 mt-6">
                     <button type="button" id="login-btn" class="bg-blue-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-blue-600 transition-colors">
                         Sign In
                     </button>
-                    <button type="button" id="signup-btn" class="bg-green-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-green-600 transition-colors">
+                    <button type="button" id="show-signup-btn" class="bg-green-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-green-600 transition-colors">
                         Sign Up
+                    </button>
+                </div>
+            </form>
+
+            <!-- Sign Up Form (hidden by default) -->
+            <form id="signup-form" class="hidden space-y-4">
+                <div>
+                    <label for="signup-email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                    <input type="email" id="signup-email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" required>
+                </div>
+                <div>
+                    <label for="signup-password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="signup-password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" required>
+                </div>
+                <div id="signup-message" class="hidden text-center text-sm font-medium text-red-500 mt-2"></div>
+
+                <div class="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4 mt-6">
+                    <button type="button" id="create-account-btn" class="bg-green-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-green-600 transition-colors">
+                        Create Account
+                    </button>
+                    <button type="button" id="back-to-login-btn" class="bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-xl shadow-md hover:bg-gray-400 transition-colors">
+                        Back
                     </button>
                 </div>
             </form>
@@ -175,14 +198,25 @@
         // Get DOM elements for auth and tracker sections
         const authSection = document.getElementById('auth-section');
         const trackerSection = document.getElementById('tracker-section');
-        const authEmailInput = document.getElementById('auth-email');
-        const authPasswordInput = document.getElementById('auth-password');
+        
+        // Login form elements
+        const loginForm = document.getElementById('login-form');
+        const loginEmailInput = document.getElementById('login-email');
+        const loginPasswordInput = document.getElementById('login-password');
         const loginBtn = document.getElementById('login-btn');
-        const signupBtn = document.getElementById('signup-btn');
-        const authMessageBox = document.getElementById('auth-message');
-        const logoutBtn = document.getElementById('logout-btn');
+        const showSignupBtn = document.getElementById('show-signup-btn');
+        const loginMessageBox = document.getElementById('login-message');
+
+        // Signup form elements
+        const signupForm = document.getElementById('signup-form');
+        const signupEmailInput = document.getElementById('signup-email');
+        const signupPasswordInput = document.getElementById('signup-password');
+        const createAccountBtn = document.getElementById('create-account-btn');
+        const backToLoginBtn = document.getElementById('back-to-login-btn');
+        const signupMessageBox = document.getElementById('signup-message');
 
         // Get DOM elements for the tracker
+        const logoutBtn = document.getElementById('logout-btn');
         const transactionForm = document.getElementById('transaction-form');
         const descriptionInput = document.getElementById('description');
         const amountInput = document.getElementById('amount');
@@ -206,14 +240,14 @@
         let transactions = [];
 
         // Function to show a temporary message
-        const showMessage = (msg, isError = false, targetEl = messageBoxEl) => {
+        const showMessage = (msg, isError = false, targetEl) => {
             targetEl.textContent = msg;
             targetEl.classList.remove('hidden');
             targetEl.classList.toggle('text-red-500', isError);
             targetEl.classList.toggle('text-green-500', !isError);
             setTimeout(() => {
                 targetEl.classList.add('hidden');
-            }, 3000);
+            }, 5000);
         };
 
         // Function to format currency
@@ -316,7 +350,7 @@
                         await deleteDoc(docRef);
                     } catch (e) {
                         console.error("Error removing document: ", e);
-                        showMessage("Error removing transaction.", true);
+                        showMessage("Error removing transaction.", true, messageBoxEl);
                     }
                 });
             });
@@ -340,15 +374,15 @@
                 try {
                     const collectionRef = collection(db, 'artifacts', appId, 'users', userId, 'transactions');
                     await addDoc(collectionRef, newTransaction);
-                    showMessage("Transaction added!", false);
+                    showMessage("Transaction added!", false, messageBoxEl);
                 } catch (e) {
                     console.error("Error adding document: ", e);
-                    showMessage("Error adding transaction.", true);
+                    showMessage("Error adding transaction.", true, messageBoxEl);
                 }
                 
                 transactionForm.reset();
             } else {
-                showMessage("Please enter a valid description and amount.", true);
+                showMessage("Please enter a valid description and amount.", true, messageBoxEl);
             }
         };
 
@@ -417,7 +451,7 @@
             
             let debts = transactions.filter(t => t.type === 'debt');
             if (debts.length === 0) {
-                showMessage('No debts to export.', true);
+                showMessage('No debts to export.', true, messageBoxEl);
                 return;
             }
             debts.sort((a, b) => a.amount - b.amount);
@@ -467,13 +501,31 @@
         addDebtBtn.addEventListener('click', () => addTransaction('debt'));
         calculateSnowballBtn.addEventListener('click', calculateSnowball);
         downloadSnowballBtn.addEventListener('click', exportSnowballPlan);
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Logout error:", error);
+            }
+        });
 
-        // Authentication logic
-        signupBtn.addEventListener('click', async () => {
-            const email = authEmailInput.value;
-            const password = authPasswordInput.value;
+        // Authentication form logic
+        showSignupBtn.addEventListener('click', () => {
+            loginForm.classList.add('hidden');
+            signupForm.classList.remove('hidden');
+        });
+
+        backToLoginBtn.addEventListener('click', () => {
+            loginForm.classList.remove('hidden');
+            signupForm.classList.add('hidden');
+        });
+
+        createAccountBtn.addEventListener('click', async () => {
+            const email = signupEmailInput.value;
+            const password = signupPasswordInput.value;
             try {
                 await createUserWithEmailAndPassword(auth, email, password);
+                showMessage('Account created successfully!', false, signupMessageBox);
             } catch (error) {
                 let message;
                 switch (error.code) {
@@ -490,13 +542,13 @@
                         message = 'Sign up failed. Please try again.';
                         console.error(error);
                 }
-                showMessage(message, true, authMessageBox);
+                showMessage(message, true, signupMessageBox);
             }
         });
 
         loginBtn.addEventListener('click', async () => {
-            const email = authEmailInput.value;
-            const password = authPasswordInput.value;
+            const email = loginEmailInput.value;
+            const password = loginPasswordInput.value;
             try {
                 await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
@@ -515,15 +567,7 @@
                         message = 'Login failed. Please try again.';
                         console.error(error);
                 }
-                showMessage(message, true, authMessageBox);
-            }
-        });
-
-        logoutBtn.addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-            } catch (error) {
-                console.error("Logout error:", error);
+                showMessage(message, true, loginMessageBox);
             }
         });
 
