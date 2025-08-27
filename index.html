@@ -1,1751 +1,1005 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Financial Tracker</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <style>
-
-        body {
-
-            font-family: 'Inter', sans-serif;
-
-            background-color: #f3f4f6;
-
-            color: #1f2937;
-
-        }
-
-    </style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+    </style>
 </head>
-
 <body class="bg-gray-100 min-h-screen p-4 md:p-8">
-
-    <div class="max-w-4xl mx-auto">
-
-        <div id="auth-section" class="bg-white rounded-2xl shadow-lg p-6 md:p-10 max-w-md mx-auto">
-
-            <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Welcome</h1>
-
-            <p class="text-center text-gray-600 mb-8">Sign in or create an account to start tracking your finances.</p>
-
-
-
-            <form id="login-form" class="space-y-4">
-
-                <div>
-
-                    <label for="login-email" class="block text-sm font-medium text-gray-700">Email Address</label>
-
-                    <input type="email" id="login-email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" required>
-
-                </div>
-
-                <div>
-
-                    <label for="login-password" class="block text-sm font-medium text-gray-700">Password</label>
-
-                    <input type="password" id="login-password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" required>
-
-                </div>
-
-                <div id="login-message" class="hidden text-center text-sm font-medium mt-2"></div>
-
-                
-
-                <div class="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4 mt-6">
-
-                    <button type="button" id="login-btn" class="bg-blue-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-blue-600 transition-colors">
-
-                        Sign In
-
-                    </button>
-
-                    <button type="button" id="show-signup-btn" class="bg-green-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-green-600 transition-colors">
-
-                        Sign Up
-
-                    </button>
-
-                </div>
-
-            </form>
-
-
-
-            <form id="signup-form" class="hidden space-y-4">
-
-                <div>
-
-                    <label for="signup-email" class="block text-sm font-medium text-gray-700">Email Address</label>
-
-                    <input type="email" id="signup-email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" required>
-
-                </div>
-
-                <div>
-
-                    <label for="signup-password" class="block text-sm font-medium text-gray-700">Password</label>
-
-                    <input type="password" id="signup-password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" required>
-
-                </div>
-
-                <div id="signup-message" class="hidden text-center text-sm font-medium mt-2"></div>
-
-
-
-                <div class="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4 mt-6">
-
-                    <button type="button" id="create-account-btn" class="bg-green-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-green-600 transition-colors">
-
-                        Create Account
-
-                    </button>
-
-                    <button type="button" id="back-to-login-btn" class="bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-xl shadow-md hover:bg-gray-400 transition-colors">
-
-                        Back
-
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
-
-
-        <div id="tracker-section" class="hidden">
-
-            <div class="flex justify-between items-center p-4">
-
-                <p class="text-sm font-medium text-gray-600">
-
-                    User ID: <span id="user-id" class="font-mono text-gray-400">Loading...</span>
-
-                </p>
-
-                <button type="button" id="logout-btn" class="bg-red-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-red-600 transition-colors">
-
-                    Log Out
-
-                </button>
-
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
-
-                <h1 class="text-3xl md:text-4xl font-bold text-center mb-6 text-gray-800">Financial Tracker</h1>
-
-                
-
-                <div class="flex flex-col md:flex-row justify-between items-center bg-gray-100 rounded-2xl p-6 mb-6">
-
-                    <div class="text-center md:text-left mb-4 md:mb-0">
-
-                        <p class="text-lg text-gray-600 font-medium">Current Balance</p>
-
-                        <p id="total-balance" class="text-4xl md:text-5xl font-extrabold text-green-700 mt-1">$0.00</p>
-
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-8">
-
-                        <div class="text-center">
-
-                            <p class="text-base text-gray-600">Total Income</p>
-
-                            <p id="total-income" class="text-xl font-semibold text-green-600 mt-1">$0.00</p>
-
-                        </div>
-
-                        <div class="text-center">
-
-                            <p class="text-base text-gray-600">Total Expenses</p>
-
-                            <p id="total-expenses" class="text-xl font-semibold text-red-600 mt-1">$0.00</p>
-
-                        </div>
-
-                        <div class="text-center">
-
-                            <p class="text-base text-gray-600">Total Debt</p>
-
-                            <p id="total-debt" class="text-xl font-semibold text-purple-600 mt-1">$0.00</p>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-
-                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 mb-6">
-
-                    <h2 id="form-title" class="text-2xl font-semibold text-center mb-6 text-gray-700">Add New Transaction</h2>
-
-                    <form id="transaction-form" class="space-y-4">
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                            <div>
-
-                                <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-
-                                <input type="text" id="description" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., Groceries, Salary" required>
-
-                            </div>
-
-                            <div>
-
-                                <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
-
-                                <input type="number" id="amount" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., 50.00" required>
-
-                            </div>
-
-                        </div>
-
-
-
-                        <div>
-
-                            <label for="type" class="block text-sm font-medium text-gray-700">Type</label>
-
-                            <select id="type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-
-                                <option value="income">Income</option>
-
-                                <option value="expense">Expense</option>
-
-                                <option value="debt">Debt</option>
-
-                            </select>
-
-                        </div>
-
-                        
-
-                        <div id="debt-fields" class="space-y-4 hidden">
-
-                            <div>
-
-                                <label for="interest-rate" class="block text-sm font-medium text-gray-700">Interest Rate (%)</label>
-
-                                <input type="number" id="interest-rate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., 5.5">
-
-                            </div>
-
-                            <div>
-
-                                <label for="min-payment" class="block text-sm font-medium text-gray-700">Minimum Payment</label>
-
-                                <input type="number" id="min-payment" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., 50.00">
-
-                            </div>
-
-                        </div>
-
-
-
-                        <div>
-
-                            <label for="recurrence" class="block text-sm font-medium text-gray-700">Recurrence</label>
-
-                            <select id="recurrence" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-
-                                <option value="none">None</option>
-
-                                <option value="weekly">Weekly</option>
-
-                                <option value="biweekly">Bi-weekly</option>
-
-                                <option value="monthly">Monthly</option>
-
-                            </select>
-
-                        </div>
-
-                        
-
-                        <div id="recurring-income-fields" class="hidden space-y-4">
-
-                            <div id="weekly-days-container" class="hidden">
-
-                                <label class="block text-sm font-medium text-gray-700">Select Day(s) of the Week</label>
-
-                                <div class="mt-2 grid grid-cols-4 md:grid-cols-7 gap-2">
-
-                                    <label class="inline-flex items-center">
-
-                                        <input type="checkbox" name="day-of-week" value="sunday" class="form-checkbox text-indigo-600 rounded-md">
-
-                                        <span class="ml-2 text-sm text-gray-700">Sun</span>
-
-                                    </label>
-
-                                    <label class="inline-flex items-center">
-
-                                        <input type="checkbox" name="day-of-week" value="monday" class="form-checkbox text-indigo-600 rounded-md">
-
-                                        <span class="ml-2 text-sm text-gray-700">Mon</span>
-
-                                    </label>
-
-                                    <label class="inline-flex items-center">
-
-                                        <input type="checkbox" name="day-of-week" value="tuesday" class="form-checkbox text-indigo-600 rounded-md">
-
-                                        <span class="ml-2 text-sm text-gray-700">Tue</span>
-
-                                    </label>
-
-                                    <label class="inline-flex items-center">
-
-                                        <input type="checkbox" name="day-of-week" value="wednesday" class="form-checkbox text-indigo-600 rounded-md">
-
-                                        <span class="ml-2 text-sm text-gray-700">Wed</span>
-
-                                    </label>
-
-                                    <label class="inline-flex items-center">
-
-                                        <input type="checkbox" name="day-of-week" value="thursday" class="form-checkbox text-indigo-600 rounded-md">
-
-                                        <span class="ml-2 text-sm text-gray-700">Thu</span>
-
-                                    </label>
-
-                                    <label class="inline-flex items-center">
-
-                                        <input type="checkbox" name="day-of-week" value="friday" class="form-checkbox text-indigo-600 rounded-md">
-
-                                        <span class="ml-2 text-sm text-gray-700">Fri</span>
-
-                                    </label>
-
-                                    <label class="inline-flex items-center">
-
-                                        <input type="checkbox" name="day-of-week" value="saturday" class="form-checkbox text-indigo-600 rounded-md">
-
-                                        <span class="ml-2 text-sm text-gray-700">Sat</span>
-
-                                    </label>
-
-                                </div>
-
-                            </div>
-
-                            <div id="monthly-day-container" class="hidden">
-
-                                <label for="monthly-day" class="block text-sm font-medium text-gray-700">Select Day of the Month</label>
-
-                                <input type="number" id="monthly-day" min="1" max="31" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., 15 for the 15th">
-
-                            </div>
-
-                            <div id="next-pay-date-container">
-
-                                <label for="next-pay-date" class="block text-sm font-medium text-gray-700">Next Pay Date</label>
-
-                                <input type="date" id="next-pay-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-
-                            </div>
-
-                        </div>
-
-
-
-                        <div>
-
-                            <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
-
-                            <textarea id="notes" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" rows="3" placeholder="Add any relevant notes here..."></textarea>
-
-                        </div>
-
-                        
-
-                        <div class="flex flex-col sm:flex-row justify-center md:justify-end space-y-2 sm:space-y-0 sm:space-x-4 mt-6">
-
-                            <button type="button" id="save-transaction-btn" class="bg-indigo-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-indigo-600 transition-colors">
-
-                                Add Transaction
-
-                            </button>
-
-                            <button type="button" id="delete-transaction-btn" class="bg-red-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-red-600 transition-colors hidden">
-
-                                Delete Transaction
-
-                            </button>
-
-                            <button type="button" id="cancel-edit-btn" class="bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-xl shadow-md hover:bg-gray-400 transition-colors hidden">
-
-                                Cancel
-
-                            </button>
-
-                        </div>
-
-                        <div id="message-box" class="hidden text-center text-sm font-medium mt-2"></div>
-
-                    </form>
-
-                </div>
-
-
-
-                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 mb-6">
-
-                    <h2 class="text-2xl font-semibold text-center mb-6 text-gray-700">Debt Snowball Tracker</h2>
-
-                    <div class="flex flex-col md:flex-row items-center justify-center md:justify-start space-y-4 md:space-y-0 md:space-x-4">
-
-                        <label for="extra-payment" class="text-sm font-medium text-gray-700">Monthly Extra Payment</label>
-
-                        <div class="relative w-full md:w-auto">
-
-                            <input type="number" id="extra-payment" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 pl-8" value="0">
-
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-
-                        </div>
-
-                        <button type="button" id="calculate-snowball" class="bg-blue-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-blue-600 transition-colors">
-
-                            Calculate
-
-                        </button>
-
-                        <button type="button" id="download-snowball" class="bg-gray-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-gray-600 transition-colors">
-
-                            Download Plan
-
-                        </button>
-
-                    </div>
-
-                    
-
-                    <div id="snowball-results" class="mt-6 space-y-4">
-
-                        <p class="text-center text-gray-500">Add some debts and an extra payment to calculate your plan.</p>
-
-                    </div>
-
-                </div>
-
-
-
-                <div class="bg-gray-50 rounded-2xl p-6 md:p-8">
-
-                    <h2 class="text-2xl font-semibold text-center mb-6 text-gray-700">Transaction History</h2>
-
-                    <div id="transactions-list" class="space-y-4">
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-
-    <script type="module">
-
-        // Firebase imports
-
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-        import { getFirestore, doc, addDoc, deleteDoc, setDoc, onSnapshot, collection, query, where, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-
-
-        // You can find this in your Firebase Console under Project settings -> General.
-
-        const firebaseConfig = {
-
-            apiKey: "AIzaSyDAMs4fq-aM3YJuBux2v4XRirGXGtW_bt4",
-
-            authDomain: "financial-tracker-705f1.firebaseapp.com",
-
-            projectId: "financial-tracker-705f1",
-
-            storageBucket: "financial-tracker-705f1.firebasestorage.app",
-
-            messagingSenderId: "284361332931",
-
-            appId: "1:284361332931:web:b287647d246eb70a49aa76",
-
-            measurementId: "G-VLF5B7LN6B"
-
-        };
-
-
-
-        // You should also update this app ID to a unique name for your project, e.g., 'my-financial-tracker'
-
-        const appId = 'financial-tracker-705f1';
-
-
-
-        // Initialize Firebase
-
-        const app = initializeApp(firebaseConfig);
-
-        const db = getFirestore(app);
-
-        const auth = getAuth(app);
-
-        let userId = '';
-
-        let unsubscribeFromTransactions = null;
-
-        
-
-        // Get DOM elements for auth and tracker sections
-
-        const authSection = document.getElementById('auth-section');
-
-        const trackerSection = document.getElementById('tracker-section');
-
-        
-
-        // Login form elements
-
-        const loginForm = document.getElementById('login-form');
-
-        const loginEmailInput = document.getElementById('login-email');
-
-        const loginPasswordInput = document.getElementById('login-password');
-
-        const loginMessageBox = document.getElementById('login-message');
-
-
-
-        // Signup form elements
-
-        const signupForm = document.getElementById('signup-form');
-
-        const signupEmailInput = document.getElementById('signup-email');
-
-        const signupPasswordInput = document.getElementById('signup-password');
-
-        const signupMessageBox = document.getElementById('signup-message');
-
-
-
-        // Get DOM elements for auth buttons
-
-        const loginBtn = document.getElementById('login-btn');
-
-        const showSignupBtn = document.getElementById('show-signup-btn');
-
-        const createAccountBtn = document.getElementById('create-account-btn');
-
-        const backToLoginBtn = document.getElementById('back-to-login-btn');
-
-
-
-        // Get DOM elements for the tracker
-
-        const logoutBtn = document.getElementById('logout-btn');
-
-        const formTitle = document.getElementById('form-title');
-
-        const transactionForm = document.getElementById('transaction-form');
-
-        const descriptionInput = document.getElementById('description');
-
-        const amountInput = document.getElementById('amount');
-
-        const typeSelect = document.getElementById('type');
-
-        const recurrenceSelect = document.getElementById('recurrence');
-
-        const interestRateInput = document.getElementById('interest-rate');
-
-        const minPaymentInput = document.getElementById('min-payment');
-
-        const notesInput = document.getElementById('notes');
-
-        const debtFieldsContainer = document.getElementById('debt-fields');
-
-        const saveTransactionBtn = document.getElementById('save-transaction-btn');
-
-        const deleteTransactionBtn = document.getElementById('delete-transaction-btn');
-
-        const cancelEditBtn = document.getElementById('cancel-edit-btn');
-
-        const totalBalanceEl = document.getElementById('total-balance');
-
-        const totalIncomeEl = document.getElementById('total-income');
-
-        const totalExpensesEl = document.getElementById('total-expenses');
-
-        const totalDebtEl = document.getElementById('total-debt');
-
-        const transactionsListEl = document.getElementById('transactions-list');
-
-        const extraPaymentInput = document.getElementById('extra-payment');
-
-        const calculateSnowballBtn = document.getElementById('calculate-snowball');
-
-        const downloadSnowballBtn = document.getElementById('download-snowball');
-
-        const snowballResultsEl = document.getElementById('snowball-results');
-
-        const userIdEl = document.getElementById('user-id');
-
-        const messageBoxEl = document.getElementById('message-box');
-
-        
-
-        // NEW: Elements for recurring income
-
-        const recurringIncomeFields = document.getElementById('recurring-income-fields');
-
-        const weeklyDaysContainer = document.getElementById('weekly-days-container');
-
-        const monthlyDayContainer = document.getElementById('monthly-day-container');
-
-        const nextPayDateInput = document.getElementById('next-pay-date');
-
-        const daysOfWeekCheckboxes = document.querySelectorAll('input[name="day-of-week"]');
-
-        const monthlyDayInput = document.getElementById('monthly-day');
-
-
-
-
-
-        // Main data array
-
-        let transactions = [];
-
-        let editingTransactionId = null;
-
-
-
-        // --- AUTHENTICATION FUNCTIONS ---
-
-
-
-        // Function to show the signup form and hide the login form
-
-        const showSignupForm = () => {
-
-            loginForm.classList.add('hidden');
-
-            signupForm.classList.remove('hidden');
-
-            loginMessageBox.classList.add('hidden');
-
-        };
-
-
-
-        // Function to show the login form and hide the signup form
-
-        const showLoginForm = () => {
-
-            signupForm.classList.add('hidden');
-
-            loginForm.classList.remove('hidden');
-
-            signupMessageBox.classList.add('hidden');
-
-        };
-
-
-
-        // Function to handle login with Firebase Auth
-
-        const handleLogin = async (e) => {
-
-            e.preventDefault();
-
-            const email = loginEmailInput.value;
-
-            const password = loginPasswordInput.value;
-
-            
-
-            try {
-
-                await signInWithEmailAndPassword(auth, email, password);
-
-                showMessage("Signed in successfully!", false, loginMessageBox);
-
-            } catch (error) {
-
-                showMessage("Sign in failed. Check your credentials.", true, loginMessageBox);
-
-                console.error("Sign in error:", error);
-
-            }
-
-        };
-
-
-
-        // Function to handle user creation with Firebase Auth
-
-        const handleSignup = async (e) => {
-
-            e.preventDefault();
-
-            const email = signupEmailInput.value;
-
-            const password = signupPasswordInput.value;
-
-
-
-            try {
-
-                await createUserWithEmailAndPassword(auth, email, password);
-
-                showMessage("Account created successfully! Please sign in.", false, signupMessageBox);
-
-                showLoginForm();
-
-            } catch (error) {
-
-                showMessage(error.message || "Sign up failed. Please try again.", true, signupMessageBox);
-
-                console.error("Sign up error:", error);
-
-            }
-
-        };
-
-   // --- AUTHENTICATION EVENT LISTENERS ---
-
-        loginBtn.addEventListener('click', handleLogin);
-
-        showSignupBtn.addEventListener('click', showSignupForm);
-
-        createAccountBtn.addEventListener('click', handleSignup);
-
-        backToLoginBtn.addEventListener('click', showLoginForm);
-
-        logoutBtn.addEventListener('click', () => signOut(auth));
-
-
-
-        // --- FINANCIAL TRACKER FUNCTIONS ---
-
-
-
-        // Function to show/hide debt-specific fields based on transaction type
-
-        const toggleDebtFields = () => {
-
-            if (typeSelect.value === 'debt') {
-
-                debtFieldsContainer.classList.remove('hidden');
-
-            } else {
-
-                debtFieldsContainer.classList.add('hidden');
-
-                interestRateInput.value = '';
-
-                minPaymentInput.value = '';
-
-            }
-
-        };
-
-
-
-        // NEW: Function to toggle income recurrence fields
-
-        const toggleRecurrenceFields = () => {
-
-            const type = typeSelect.value;
-
-            const recurrence = recurrenceSelect.value;
-
-            
-
-            // Hide all recurrence-specific fields by default
-
-            recurringIncomeFields.classList.add('hidden');
-
-            weeklyDaysContainer.classList.add('hidden');
-
-            monthlyDayContainer.classList.add('hidden');
-
-            nextPayDateInput.closest('div').classList.add('hidden');
-
-
-
-            if (type === 'income' && recurrence !== 'none') {
-
-                recurringIncomeFields.classList.remove('hidden');
-
-                nextPayDateInput.closest('div').classList.remove('hidden');
-
-                if (recurrence === 'weekly' || recurrence === 'biweekly') {
-
-                    weeklyDaysContainer.classList.remove('hidden');
-
-                } else if (recurrence === 'monthly') {
-
-                    monthlyDayContainer.classList.remove('hidden');
-
-                }
-
-            }
-
-        };
-
-
-
-        // Function to reset the transaction form
-
-        const resetForm = () => {
-
-            transactionForm.reset();
-
-            formTitle.textContent = 'Add New Transaction';
-
-            saveTransactionBtn.textContent = 'Add Transaction';
-
-            deleteTransactionBtn.classList.add('hidden');
-
-            cancelEditBtn.classList.add('hidden');
-
-            editingTransactionId = null;
-
-            toggleDebtFields();
-
-            toggleRecurrenceFields();
-
-        };
-
-
-
-        // Function to show a temporary message
-
-        const showMessage = (msg, isError = false, targetEl) => {
-
-            targetEl.textContent = msg;
-
-            targetEl.classList.remove('hidden');
-
-            targetEl.classList.toggle('text-red-500', isError);
-
-            targetEl.classList.toggle('text-green-500', !isError);
-
-            setTimeout(() => {
-
-                targetEl.classList.add('hidden');
-
-            }, 5000);
-
-        };
-
-
-
-        // Function to format currency
-
-        const formatCurrency = (amount) => {
-
-            return new Intl.NumberFormat('en-US', {
-
-                style: 'currency',
-
-                currency: 'USD',
-
-            }).format(amount);
-
-        };
-
-
-
-        // Function to update the summary totals
-
-        const updateSummary = () => {
-
-            const totalIncome = transactions
-
-                .filter(t => t.type === 'income')
-
-                .reduce((sum, t) => sum + t.amount, 0);
-
-
-
-            const totalExpenses = transactions
-
-                .filter(t => t.type === 'expense')
-
-                .reduce((sum, t) => sum + t.amount, 0);
-
-            
-
-            const totalDebt = transactions
-
-                .filter(t => t.type === 'debt')
-
-                .reduce((sum, t) => sum + t.amount, 0);
-
-
-
-            const totalBalance = totalIncome - totalExpenses - totalDebt;
-
-
-
-            totalBalanceEl.textContent = formatCurrency(totalBalance);
-
-            totalIncomeEl.textContent = formatCurrency(totalIncome);
-
-            totalExpensesEl.textContent = formatCurrency(totalExpenses);
-
-            totalDebtEl.textContent = formatCurrency(totalDebt);
-
-
-
-            if (totalBalance < 0) {
-
-                totalBalanceEl.classList.remove('text-green-700');
-
-                totalBalanceEl.classList.add('text-red-700');
-
-            } else {
-
-                totalBalanceEl.classList.remove('text-red-700');
-
-                totalBalanceEl.classList.add('text-green-700');
-
-            }
-
-        };
-
-
-
-        // Function to render transactions in the history list
-
-        const renderTransactions = () => {
-
-            transactionsListEl.innerHTML = '';
-
-            if (transactions.length === 0) {
-
-                transactionsListEl.innerHTML = '<p class="text-center text-gray-500">No transactions added yet.</p>';
-
-                return;
-
-            }
-
-
-
-            const sortedTransactions = transactions.sort((a, b) => {
-
-                const dateA = a.timestamp ? a.timestamp.toDate() : new Date();
-
-                const dateB = b.timestamp ? b.timestamp.toDate() : new Date();
-
-                return dateB - dateA;
-
-            });
-
-
-
-            sortedTransactions.forEach((transaction) => {
-
-                let bgColor, textColor, sign;
-
-
-
-                if (transaction.type === 'income') {
-
-                    bgColor = 'bg-green-50';
-
-                    textColor = 'text-green-600';
-
-                    sign = '+';
-
-                } else if (transaction.type === 'expense') {
-
-                    bgColor = 'bg-red-50';
-
-                    textColor = 'text-red-600';
-
-                    sign = '-';
-
-                } else if (transaction.type === 'debt') {
-
-                    bgColor = 'bg-purple-50';
-
-                    textColor = 'text-purple-600';
-
-                    sign = '-';
-
-                }
-
-
-
-                const transactionEl = document.createElement('div');
-
-                transactionEl.className = `flex justify-between items-center p-4 rounded-xl shadow-sm transition-all duration-300 ${bgColor} hover:bg-gray-100 cursor-pointer`;
-
-                transactionEl.dataset.id = transaction.id;
-
-                transactionEl.addEventListener('click', () => editTransaction(transaction));
-
-
-
-                let recurrenceText = '';
-
-                if (transaction.recurrence && transaction.recurrence !== 'none') {
-
-                    recurrenceText = `<span class="text-xs text-gray-500 ml-2">(${transaction.recurrence})</span>`;
-
-                }
-
-
-
-                let notesText = '';
-
-                if (transaction.notes) {
-
-                    notesText = `<p class="text-xs text-gray-400 mt-1">Notes: ${transaction.notes}</p>`;
-
-                }
-
-                
-
-                let debtDetails = '';
-
-                if (transaction.type === 'debt') {
-
-                    debtDetails = `<div class="text-xs text-gray-400 mt-1">
-
-                        ${transaction.interestRate ? `Interest: ${transaction.interestRate}%` : ''}
-
-                        ${transaction.interestRate && transaction.minPayment ? ' | ' : ''}
-
-                        ${transaction.minPayment ? `Min. Pmt: $${transaction.minPayment.toFixed(2)}` : ''}
-
-                    </div>`;
-
-                }
-
-
-
-                transactionEl.innerHTML = `
-
-                    <div class="flex flex-col">
-
-                        <p class="text-gray-800 font-medium">${transaction.description} ${recurrenceText}</p>
-
-                        <p class="text-sm text-gray-500">${transaction.timestamp ? transaction.timestamp.toDate().toLocaleDateString() : 'N/A'}</p>
-
-                        ${debtDetails}
-
-                        ${notesText}
-
-                    </div>
-
-                    <div class="flex items-center space-x-2">
-
-                        <p class="text-lg font-semibold ${textColor}">
-
-                            ${sign} ${formatCurrency(transaction.amount)}
-
-                        </p>
-
-                    </div>
-
-                `;
-
-                transactionsListEl.appendChild(transactionEl);
-
-            });
-
-        };
-
-
-
-        // Function to handle adding or updating a transaction
-
-        const saveTransaction = async (e) => {
-
-            e.preventDefault();
-
-            
-
-            const description = descriptionInput.value.trim();
-
-            const amount = parseFloat(amountInput.value);
-
-            const type = typeSelect.value;
-
-            const recurrence = recurrenceSelect.value;
-
-            const notes = notesInput.value.trim();
-
-            const interestRate = type === 'debt' ? parseFloat(interestRateInput.value) || null : null;
-
-            const minPayment = type === 'debt' ? parseFloat(minPaymentInput.value) || null : null;
-
-
-
-            // NEW: Get the recurrence-specific data
-
-            const selectedDays = type === 'income' && (recurrence === 'weekly' || recurrence === 'biweekly') 
-
-                ? Array.from(daysOfWeekCheckboxes).filter(cb => cb.checked).map(cb => cb.value) 
-
-                : [];
-
-            const monthlyDay = type === 'income' && recurrence === 'monthly' ? parseInt(monthlyDayInput.value) || null : null;
-
-            const nextPayDate = nextPayDateInput.value ? new Date(nextPayDateInput.value) : null;
-
-            
-
-            if (description && !isNaN(amount) && amount > 0) {
-
-                const transactionData = {
-
-                    description,
-
-                    amount,
-
-                    type,
-
-                    recurrence,
-
-                    notes,
-
-                    interestRate,
-
-                    minPayment,
-
-                    selectedDays, // NEW
-
-                    monthlyDay,   // NEW
-
-                    nextPayDate: nextPayDate ? nextPayDate.toISOString() : null, // NEW
-
-                    lastAdded: serverTimestamp() // NEW
-
-                };
-
-                
-
-                try {
-
-                    if (editingTransactionId) {
-
-                        const docRef = doc(db, `artifacts/${appId}/users/${userId}/transactions`, editingTransactionId);
-
-                        await setDoc(docRef, transactionData, { merge: true });
-
-                        showMessage("Transaction updated successfully!", false, messageBoxEl);
-
-                    } else {
-
-                        const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/transactions`);
-
-                        await addDoc(collectionRef, {
-
-                            ...transactionData,
-
-                            timestamp: serverTimestamp()
-
-                        });
-
-                        showMessage("Transaction added successfully!", false, messageBoxEl);
-
-                    }
-
-                } catch (e) {
-
-                    console.error("Error saving document: ", e);
-
-                    showMessage("Error saving transaction.", true, messageBoxEl);
-
-                }
-
-                
-
-                resetForm();
-
-            } else {
-
-                showMessage("Please enter a valid description and amount.", true, messageBoxEl);
-
-            }
-
-        };
-
-
-
-        // Function to load a transaction into the form for editing
-
-        const editTransaction = (transaction) => {
-
-            editingTransactionId = transaction.id;
-
-            
-
-            formTitle.textContent = 'Edit Transaction';
-
-            saveTransactionBtn.textContent = 'Save Changes';
-
-            deleteTransactionBtn.classList.remove('hidden');
-
-            cancelEditBtn.classList.remove('hidden');
-
-
-
-            descriptionInput.value = transaction.description;
-
-            amountInput.value = transaction.amount;
-
-            typeSelect.value = transaction.type;
-
-            recurrenceSelect.value = transaction.recurrence;
-
-            notesInput.value = transaction.notes || '';
-
-            interestRateInput.value = transaction.interestRate || '';
-
-            minPaymentInput.value = transaction.minPayment || '';
-
-            
-
-            // NEW: Populate recurring income fields for editing
-
-            if (transaction.type === 'income' && transaction.recurrence !== 'none') {
-
-                if (transaction.selectedDays) {
-
-                    daysOfWeekCheckboxes.forEach(cb => {
-
-                        cb.checked = transaction.selectedDays.includes(cb.value);
-
-                    });
-
-                }
-
-                monthlyDayInput.value = transaction.monthlyDay || '';
-
-                nextPayDateInput.value = transaction.nextPayDate ? transaction.nextPayDate.split('T')[0] : '';
-
-            }
-
-
-
-            toggleDebtFields();
-
-            toggleRecurrenceFields();
-
-        };
-
-
-
-        // Function to handle deleting a transaction
-
-        const deleteTransaction = async () => {
-
-            if (!editingTransactionId) {
-
-                return;
-
-            }
-
-            try {
-
-                const docRef = doc(db, `artifacts/${appId}/users/${userId}/transactions`, editingTransactionId);
-
-                await deleteDoc(docRef);
-
-                showMessage("Transaction deleted successfully!", false, messageBoxEl);
-
-                resetForm();
-
-            } catch (e) {
-
-                console.error("Error removing document: ", e);
-
-                showMessage("Error removing transaction.", true, messageBoxEl);
-
-            }
-
-        };
-
-
-
-        // NEW: Function to process recurring income
-
-        const processRecurringIncome = async (userTransactions) => {
-
-            const today = new Date();
-
-            const todayDayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
-
-            const todayDayOfMonth = today.getDate();
-
-            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-
-
-
-            const recurringIncomes = userTransactions.filter(t => t.type === 'income' && t.recurrence !== 'none');
-
-
-
-            for (const income of recurringIncomes) {
-
-                if (!income.nextPayDate) continue;
-
-
-
-                let nextPayDate = new Date(income.nextPayDate);
-
-                let shouldAdd = false;
-
-                
-
-                if (today.getTime() >= nextPayDate.getTime()) {
-
-                    if (income.recurrence === 'weekly' && income.selectedDays.includes(dayNames[todayDayOfWeek])) {
-
-                        shouldAdd = true;
-
-                    } else if (income.recurrence === 'biweekly' && income.selectedDays.includes(dayNames[todayDayOfWeek])) {
-
-                        const daysSinceLastPay = Math.floor((today - income.lastAdded.toDate()) / (1000 * 60 * 60 * 24));
-
-                        if (daysSinceLastPay >= 14) {
-
-                            shouldAdd = true;
-
-                        }
-
-                    } else if (income.recurrence === 'monthly' && income.monthlyDay === todayDayOfMonth) {
-
-                        shouldAdd = true;
-
-                    }
-
-                }
-
-                
-
-                if (shouldAdd) {
-
-                    try {
-
-                        const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/transactions`);
-
-                        await addDoc(collectionRef, {
-
-                            description: `${income.description} (Recurring)`,
-
-                            amount: income.amount,
-
-                            type: 'income',
-
-                            recurrence: 'none',
-
-                            notes: `Auto-added from recurring schedule.`,
-
-                            timestamp: serverTimestamp()
-
-                        });
-
-
-
-                        const updatedNextPayDate = new Date(nextPayDate);
-
-                        if (income.recurrence === 'weekly') {
-
-                            updatedNextPayDate.setDate(updatedNextPayDate.getDate() + 7);
-
-                        } else if (income.recurrence === 'biweekly') {
-
-                            updatedNextPayDate.setDate(updatedNextPayDate.getDate() + 14);
-
-                        } else if (income.recurrence === 'monthly') {
-
-                            updatedNextPayDate.setMonth(updatedNextPayDate.getMonth() + 1);
-
-                        }
-
-
-
-                        const docRef = doc(db, `artifacts/${appId}/users/${userId}/transactions`, income.id);
-
-                        await setDoc(docRef, { 
-
-                            lastAdded: serverTimestamp(),
-
-                            nextPayDate: updatedNextPayDate.toISOString() 
-
-                        }, { merge: true });
-
-
-
-                    } catch (e) {
-
-                        console.error("Error adding recurring income: ", e);
-
-                    }
-
-                }
-
-            }
-
-        };
-
-
-
-        const calculateSnowball = () => {
-
-            snowballResultsEl.innerHTML = '';
-
-            
-
-            let debts = transactions.filter(t => t.type === 'debt').sort((a, b) => a.amount - b.amount);
-
-            if (debts.length === 0) {
-
-                snowballResultsEl.innerHTML = '<p class="text-center text-gray-500">No debts to track. Add some debt transactions first!</p>';
-
-                return;
-
-            }
-
-
-
-            let extraPayment = parseFloat(extraPaymentInput.value);
-
-            if (isNaN(extraPayment) || extraPayment < 0) {
-
-                extraPayment = 0;
-
-            }
-
-
-
-            const startDate = new Date();
-
-            let monthCounter = 0;
-
-            let snowballPayment = extraPayment;
-
-            let results = [];
-
-
-
-            for (let i = 0; i < debts.length; i++) {
-
-                let currentDebt = { ...debts[i] };
-
-                let monthsToPayoff = 0;
-
-                let balance = currentDebt.amount;
-
-                
-
-                while (balance > 0) {
-
-                    monthsToPayoff++;
-
-                    balance -= (currentDebt.minPayment || 0) + snowballPayment;
-
-                    if (balance <= 0) {
-
-                        snowballPayment += currentDebt.minPayment || 0;
-
-                    }
-
-                }
-
-                
-
-                monthCounter += monthsToPayoff;
-
-                const payoffDate = new Date(startDate.getFullYear(), startDate.getMonth() + monthCounter, startDate.getDate());
-
-                
-
-                results.push({
-
-                    description: currentDebt.description,
-
-                    amount: currentDebt.amount,
-
-                    payoffDate: payoffDate,
-
-                    months: monthCounter
-
-                });
-
-            }
-
-
-
-            results.forEach(result => {
-
-                const resultEl = document.createElement('div');
-
-                resultEl.className = 'p-4 rounded-xl bg-blue-50 shadow-sm';
-
-                resultEl.innerHTML = `
-
-                    <p class="text-gray-800 font-medium">${result.description}</p>
-
-                    <p class="text-sm text-gray-600">Original Amount: ${formatCurrency(result.amount)}</p>
-
-                    <p class="text-lg font-semibold text-blue-600">
-
-                        Payoff Date: ${result.payoffDate.toLocaleDateString()}
-
-                    </p>
-
-                    <p class="text-sm text-gray-500">${result.months} months to payoff</p>
-
-                `;
-
-                snowballResultsEl.appendChild(resultEl);
-
-            });
-
-        };
-
-
-
-        const exportSnowballPlan = () => {
-
-            const extraPayment = parseFloat(extraPaymentInput.value) || 0;
-
-            
-
-            let debts = transactions.filter(t => t.type === 'debt').sort((a, b) => a.amount - b.amount);
-
-            
-
-            if (debts.length === 0) {
-
-                alert("Please add some debt transactions first.");
-
-                return;
-
-            }
-
-            
-
-            let csvContent = "data:text/csv;charset=utf-8,Debt,Original Amount,Interest Rate,Minimum Payment,Months to Payoff,Payoff Date\n";
-
-            const startDate = new Date();
-
-            let monthCounter = 0;
-
-            let snowballPayment = extraPayment;
-
-            
-
-            for (let i = 0; i < debts.length; i++) {
-
-                let currentDebt = { ...debts[i] };
-
-                let monthsToPayoff = 0;
-
-                let balance = currentDebt.amount;
-
-                
-
-                while (balance > 0) {
-
-                    monthsToPayoff++;
-
-                    balance -= (currentDebt.minPayment || 0) + snowballPayment;
-
-                    if (balance <= 0) {
-
-                        snowballPayment += currentDebt.minPayment || 0;
-
-                    }
-
-                }
-
-                
-
-                monthCounter += monthsToPayoff;
-
-                const payoffDate = new Date(startDate.getFullYear(), startDate.getMonth() + monthCounter, startDate.getDate());
-
-                const formattedPayoffDate = payoffDate.toLocaleDateString();
-
-                
-
-                csvContent += `${currentDebt.description},${currentDebt.amount},${currentDebt.interestRate || 'N/A'},${currentDebt.minPayment || 'N/A'},${monthsToPayoff},${formattedPayoffDate}\n`;
-
-            }
-
-            
-
-            const encodedUri = encodeURI(csvContent);
-
-            const link = document.createElement("a");
-
-            link.setAttribute("href", encodedUri);
-
-            link.setAttribute("download", "debt_snowball_plan.csv");
-
-            document.body.appendChild(link);
-
-            link.click();
-
-            document.body.removeChild(link);
-
-        };
-
-        
-
-        // --- TRANSACTION-RELATED EVENT LISTENERS ---
-
-        typeSelect.addEventListener('change', () => {
-
-            toggleDebtFields();
-
-            toggleRecurrenceFields();
-
-        });
-
-        recurrenceSelect.addEventListener('change', toggleRecurrenceFields);
-
-        transactionForm.addEventListener('submit', saveTransaction);
-
-        saveTransactionBtn.addEventListener('click', saveTransaction);
-
-        deleteTransactionBtn.addEventListener('click', deleteTransaction);
-
-        cancelEditBtn.addEventListener('click', resetForm);
-
-        calculateSnowballBtn.addEventListener('click', calculateSnowball);
-
-        downloadSnowballBtn.addEventListener('click', exportSnowballPlan);
-
-
-
-        // --- FIREBASE AUTH STATE CHANGE HANDLER ---
-
-        const handleAuthChange = async (user) => {
-
-            if (user) {
-
-                // User is signed in
-
-                userId = user.uid;
-
-                userIdEl.textContent = userId;
-
-                authSection.classList.add('hidden');
-
-                trackerSection.classList.remove('hidden');
-
-
-
-                // Unsubscribe from previous user's data if it exists
-
-                if (unsubscribeFromTransactions) {
-
-                    unsubscribeFromTransactions();
-
-                }
-
-
-
-                // Listen for real-time updates to the transactions
-
-                const q = query(collection(db, `artifacts/${appId}/users/${userId}/transactions`));
-
-                unsubscribeFromTransactions = onSnapshot(q, async (querySnapshot) => {
-
-                    transactions = querySnapshot.docs.map(doc => ({
-
-                        id: doc.id,
-
-                        ...doc.data()
-
-                    }));
-
-                    
-
-                    // NEW: Process recurring income after loading transactions
-
-                    await processRecurringIncome(transactions);
-
-
-
-                    renderTransactions();
-
-                    updateSummary();
-
-                });
-
-
-
-            } else {
-
-                // User is signed out
-
-                userId = '';
-
-                authSection.classList.remove('hidden');
-
-                trackerSection.classList.add('hidden');
-
-                transactions = [];
-
-                renderTransactions();
-
-                updateSummary();
-
-            }
-
-        };
-
-
-
-        // Set up the listener for auth state changes
-
-        onAuthStateChanged(auth, handleAuthChange);
-
-    </script>
-
+    <div class="max-w-4xl mx-auto">
+        <div id="auth-section" class="bg-white rounded-2xl shadow-lg p-6 md:p-10 max-w-md mx-auto">
+            <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Welcome</h1>
+            <p class="text-center text-gray-600 mb-8">Sign in or create an account to start tracking your finances.</p>
+
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label for="login-email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                    <input type="email" id="login-email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" required>
+                </div>
+                <div>
+                    <label for="login-password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="login-password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" required>
+                </div>
+                <div id="login-message" class="hidden text-center text-sm font-medium mt-2"></div>
+                
+                <div class="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4 mt-6">
+                    <button type="button" id="login-btn" class="bg-blue-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-blue-600 transition-colors">
+                        Sign In
+                    </button>
+                    <button type="button" id="show-signup-btn" class="bg-green-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-green-600 transition-colors">
+                        Sign Up
+                    </button>
+                </div>
+            </form>
+
+            <form id="signup-form" class="hidden space-y-4">
+                <div>
+                    <label for="signup-email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                    <input type="email" id="signup-email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" required>
+                </div>
+                <div>
+                    <label for="signup-password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="signup-password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" required>
+                </div>
+                <div id="signup-message" class="hidden text-center text-sm font-medium mt-2"></div>
+
+                <div class="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4 mt-6">
+                    <button type="button" id="create-account-btn" class="bg-green-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-green-600 transition-colors">
+                        Create Account
+                    </button>
+                    <button type="button" id="back-to-login-btn" class="bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-xl shadow-md hover:bg-gray-400 transition-colors">
+                        Back
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="tracker-section" class="hidden">
+            <div class="flex justify-between items-center p-4">
+                <p class="text-sm font-medium text-gray-600">
+                    User ID: <span id="user-id" class="font-mono text-gray-400">Loading...</span>
+                </p>
+                <button type="button" id="logout-btn" class="bg-red-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-red-600 transition-colors">
+                    Log Out
+                </button>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
+                <h1 class="text-3xl md:text-4xl font-bold text-center mb-6 text-gray-800">Financial Tracker</h1>
+                
+                <div class="flex flex-col md:flex-row justify-between items-center bg-gray-100 rounded-2xl p-6 mb-6">
+                    <div class="text-center md:text-left mb-4 md:mb-0">
+                        <p class="text-lg text-gray-600 font-medium">Current Balance</p>
+                        <p id="total-balance" class="text-4xl md:text-5xl font-extrabold text-green-700 mt-1">$0.00</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-8">
+                        <div class="text-center">
+                            <p class="text-base text-gray-600">Total Income</p>
+                            <p id="total-income" class="text-xl font-semibold text-green-600 mt-1">$0.00</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-base text-gray-600">Total Expenses</p>
+                            <p id="total-expenses" class="text-xl font-semibold text-red-600 mt-1">$0.00</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-base text-gray-600">Total Debt</p>
+                            <p id="total-debt" class="text-xl font-semibold text-purple-600 mt-1">$0.00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 mb-6">
+                    <h2 id="form-title" class="text-2xl font-semibold text-center mb-6 text-gray-700">Add New Transaction</h2>
+                    <form id="transaction-form" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                                <input type="text" id="description" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., Groceries, Salary" required>
+                            </div>
+                            <div>
+                                <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
+                                <input type="number" id="amount" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., 50.00" required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="type" class="block text-sm font-medium text-gray-700">Type</label>
+                            <select id="type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                                <option value="debt">Debt</option>
+                            </select>
+                        </div>
+                        
+                        <div id="debt-fields" class="space-y-4 hidden">
+                            <div>
+                                <label for="interest-rate" class="block text-sm font-medium text-gray-700">Interest Rate (%)</label>
+                                <input type="number" id="interest-rate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., 5.5">
+                            </div>
+                            <div>
+                                <label for="min-payment" class="block text-sm font-medium text-gray-700">Minimum Payment</label>
+                                <input type="number" id="min-payment" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., 50.00">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="recurrence" class="block text-sm font-medium text-gray-700">Recurrence</label>
+                            <select id="recurrence" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                                <option value="none">None</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="biweekly">Bi-weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>
+                        
+                        <div id="recurring-income-fields" class="hidden space-y-4">
+                            <div id="weekly-days-container" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700">Select Day(s) of the Week</label>
+                                <div class="mt-2 grid grid-cols-4 md:grid-cols-7 gap-2">
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="day-of-week" value="sunday" class="form-checkbox text-indigo-600 rounded-md">
+                                        <span class="ml-2 text-sm text-gray-700">Sun</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="day-of-week" value="monday" class="form-checkbox text-indigo-600 rounded-md">
+                                        <span class="ml-2 text-sm text-gray-700">Mon</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="day-of-week" value="tuesday" class="form-checkbox text-indigo-600 rounded-md">
+                                        <span class="ml-2 text-sm text-gray-700">Tue</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="day-of-week" value="wednesday" class="form-checkbox text-indigo-600 rounded-md">
+                                        <span class="ml-2 text-sm text-gray-700">Wed</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="day-of-week" value="thursday" class="form-checkbox text-indigo-600 rounded-md">
+                                        <span class="ml-2 text-sm text-gray-700">Thu</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="day-of-week" value="friday" class="form-checkbox text-indigo-600 rounded-md">
+                                        <span class="ml-2 text-sm text-gray-700">Fri</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="day-of-week" value="saturday" class="form-checkbox text-indigo-600 rounded-md">
+                                        <span class="ml-2 text-sm text-gray-700">Sat</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="monthly-day-container" class="hidden">
+                                <label for="monthly-day" class="block text-sm font-medium text-gray-700">Select Day of the Month</label>
+                                <input type="number" id="monthly-day" min="1" max="31" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., 15 for the 15th">
+                            </div>
+                            <div id="next-pay-date-container">
+                                <label for="next-pay-date" class="block text-sm font-medium text-gray-700">Next Pay Date</label>
+                                <input type="date" id="next-pay-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
+                            <textarea id="notes" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" rows="3" placeholder="Add any relevant notes here..."></textarea>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row justify-center md:justify-end space-y-2 sm:space-y-0 sm:space-x-4 mt-6">
+                            <button type="button" id="save-transaction-btn" class="bg-indigo-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-indigo-600 transition-colors">
+                                Add Transaction
+                            </button>
+                            <button type="button" id="delete-transaction-btn" class="bg-red-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-red-600 transition-colors hidden">
+                                Delete Transaction
+                            </button>
+                            <button type="button" id="cancel-edit-btn" class="bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-xl shadow-md hover:bg-gray-400 transition-colors hidden">
+                                Cancel
+                            </button>
+                        </div>
+                        <div id="message-box" class="hidden text-center text-sm font-medium mt-2"></div>
+                    </form>
+                </div>
+
+                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 mb-6">
+                    <h2 class="text-2xl font-semibold text-center mb-6 text-gray-700">Debt Snowball Tracker</h2>
+                    <div class="flex flex-col md:flex-row items-center justify-center md:justify-start space-y-4 md:space-y-0 md:space-x-4">
+                        <label for="extra-payment" class="text-sm font-medium text-gray-700">Monthly Extra Payment</label>
+                        <div class="relative w-full md:w-auto">
+                            <input type="number" id="extra-payment" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 pl-8" value="0">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                        </div>
+                        <button type="button" id="calculate-snowball" class="bg-blue-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-blue-600 transition-colors">
+                            Calculate
+                        </button>
+                        <button type="button" id="download-snowball" class="bg-gray-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-gray-600 transition-colors">
+                            Download Plan
+                        </button>
+                    </div>
+                    
+                    <div id="snowball-results" class="mt-6 space-y-4">
+                        <p class="text-center text-gray-500">Add some debts and an extra payment to calculate your plan.</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 mb-6">
+                    <h2 class="text-2xl font-semibold text-center mb-6 text-gray-700">Payday Calendar</h2>
+                    <div id="calendar-header" class="flex justify-between items-center mb-4">
+                        <button id="prev-month-btn" class="bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <h3 id="current-month-year" class="text-lg font-bold"></h3>
+                        <button id="next-month-btn" class="bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-2 text-center">
+                        <div class="text-sm font-semibold text-gray-600">Sun</div>
+                        <div class="text-sm font-semibold text-gray-600">Mon</div>
+                        <div class="text-sm font-semibold text-gray-600">Tue</div>
+                        <div class="text-sm font-semibold text-gray-600">Wed</div>
+                        <div class="text-sm font-semibold text-gray-600">Thu</div>
+                        <div class="text-sm font-semibold text-gray-600">Fri</div>
+                        <div class="text-sm font-semibold text-gray-600">Sat</div>
+                    </div>
+                    <div id="upcoming-paydays" class="mt-4 p-4 rounded-xl bg-green-50">
+                        <h4 class="font-semibold text-green-700 mb-2">Upcoming Paydays:</h4>
+                        <ul id="upcoming-paydays-list" class="list-disc list-inside text-sm text-green-600">
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-2xl p-6 md:p-8">
+                    <h2 class="text-2xl font-semibold text-center mb-6 text-gray-700">Transaction History</h2>
+                    <div id="transactions-list" class="space-y-4">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, deleteDoc, setDoc, onSnapshot, collection, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // You can find this in your Firebase Console under Project settings -> General.
+        const firebaseConfig = {
+            apiKey: "AIzaSyDAMs4fq-aM3YJuBux2v4XRirGXGtW_bt4",
+            authDomain: "financial-tracker-705f1.firebaseapp.com",
+            projectId: "financial-tracker-705f1",
+            storageBucket: "financial-tracker-705f1.firebasestorage.app",
+            messagingSenderId: "284361332931",
+            appId: "1:284361332931:web:b287647d246eb70a49aa76",
+            measurementId: "G-VLF5B7LN6B"
+        };
+
+        const appId = 'financial-tracker-705f1';
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        let userId = '';
+        let unsubscribeFromTransactions = null;
+        
+        // Get DOM elements for auth and tracker sections
+        const authSection = document.getElementById('auth-section');
+        const trackerSection = document.getElementById('tracker-section');
+        
+        // Login form elements
+        const loginForm = document.getElementById('login-form');
+        const loginEmailInput = document.getElementById('login-email');
+        const loginPasswordInput = document.getElementById('login-password');
+        const loginMessageBox = document.getElementById('login-message');
+
+        // Signup form elements
+        const signupForm = document.getElementById('signup-form');
+        const signupEmailInput = document.getElementById('signup-email');
+        const signupPasswordInput = document.getElementById('signup-password');
+        const signupMessageBox = document.getElementById('signup-message');
+
+        // Get DOM elements for auth buttons
+        const loginBtn = document.getElementById('login-btn');
+        const showSignupBtn = document.getElementById('show-signup-btn');
+        const createAccountBtn = document.getElementById('create-account-btn');
+        const backToLoginBtn = document.getElementById('back-to-login-btn');
+
+        // Get DOM elements for the tracker
+        const logoutBtn = document.getElementById('logout-btn');
+        const formTitle = document.getElementById('form-title');
+        const transactionForm = document.getElementById('transaction-form');
+        const descriptionInput = document.getElementById('description');
+        const amountInput = document.getElementById('amount');
+        const typeSelect = document.getElementById('type');
+        const recurrenceSelect = document.getElementById('recurrence');
+        const interestRateInput = document.getElementById('interest-rate');
+        const minPaymentInput = document.getElementById('min-payment');
+        const notesInput = document.getElementById('notes');
+        const debtFieldsContainer = document.getElementById('debt-fields');
+        const saveTransactionBtn = document.getElementById('save-transaction-btn');
+        const deleteTransactionBtn = document.getElementById('delete-transaction-btn');
+        const cancelEditBtn = document.getElementById('cancel-edit-btn');
+        const totalBalanceEl = document.getElementById('total-balance');
+        const totalIncomeEl = document.getElementById('total-income');
+        const totalExpensesEl = document.getElementById('total-expenses');
+        const totalDebtEl = document.getElementById('total-debt');
+        const transactionsListEl = document.getElementById('transactions-list');
+        const extraPaymentInput = document.getElementById('extra-payment');
+        const calculateSnowballBtn = document.getElementById('calculate-snowball');
+        const downloadSnowballBtn = document.getElementById('download-snowball');
+        const snowballResultsEl = document.getElementById('snowball-results');
+        const userIdEl = document.getElementById('user-id');
+        const messageBoxEl = document.getElementById('message-box');
+        
+        // NEW: Elements for recurring income
+        const recurringIncomeFields = document.getElementById('recurring-income-fields');
+        const weeklyDaysContainer = document.getElementById('weekly-days-container');
+        const monthlyDayContainer = document.getElementById('monthly-day-container');
+        const nextPayDateInput = document.getElementById('next-pay-date');
+        const daysOfWeekCheckboxes = document.querySelectorAll('input[name="day-of-week"]');
+        const monthlyDayInput = document.getElementById('monthly-day');
+
+        // NEW: Calendar elements
+        const calendarGridEl = document.getElementById('calendar-grid');
+        const currentMonthYearEl = document.getElementById('current-month-year');
+        const prevMonthBtn = document.getElementById('prev-month-btn');
+        const nextMonthBtn = document.getElementById('next-month-btn');
+        const upcomingPaydaysListEl = document.getElementById('upcoming-paydays-list');
+        let currentCalendarDate = new Date();
+
+        // Main data array
+        let transactions = [];
+        let editingTransactionId = null;
+
+        // --- AUTHENTICATION FUNCTIONS ---
+        const showSignupForm = () => {
+            loginForm.classList.add('hidden');
+            signupForm.classList.remove('hidden');
+            loginMessageBox.classList.add('hidden');
+        };
+
+        const showLoginForm = () => {
+            signupForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+            signupMessageBox.classList.add('hidden');
+        };
+
+        const handleLogin = async (e) => {
+            e.preventDefault();
+            const email = loginEmailInput.value;
+            const password = loginPasswordInput.value;
+            
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showMessage("Signed in successfully!", false, loginMessageBox);
+            } catch (error) {
+                showMessage("Sign in failed. Check your credentials.", true, loginMessageBox);
+                console.error("Sign in error:", error);
+            }
+        };
+
+        const handleSignup = async (e) => {
+            e.preventDefault();
+            const email = signupEmailInput.value;
+            const password = signupPasswordInput.value;
+
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                showMessage("Account created successfully! Please sign in.", false, signupMessageBox);
+                showLoginForm();
+            } catch (error) {
+                showMessage(error.message || "Sign up failed. Please try again.", true, signupMessageBox);
+                console.error("Sign up error:", error);
+            }
+        };
+        
+        // --- FINANCIAL TRACKER FUNCTIONS ---
+
+        const toggleDebtFields = () => {
+            if (typeSelect.value === 'debt') {
+                debtFieldsContainer.classList.remove('hidden');
+            } else {
+                debtFieldsContainer.classList.add('hidden');
+                interestRateInput.value = '';
+                minPaymentInput.value = '';
+            }
+        };
+
+        const toggleRecurrenceFields = () => {
+            const type = typeSelect.value;
+            const recurrence = recurrenceSelect.value;
+            
+            recurringIncomeFields.classList.add('hidden');
+            weeklyDaysContainer.classList.add('hidden');
+            monthlyDayContainer.classList.add('hidden');
+            nextPayDateInput.closest('div').classList.add('hidden');
+
+            if (type === 'income' && recurrence !== 'none') {
+                recurringIncomeFields.classList.remove('hidden');
+                nextPayDateInput.closest('div').classList.remove('hidden');
+                if (recurrence === 'weekly' || recurrence === 'biweekly') {
+                    weeklyDaysContainer.classList.remove('hidden');
+                } else if (recurrence === 'monthly') {
+                    monthlyDayContainer.classList.remove('hidden');
+                }
+            }
+        };
+
+        const resetForm = () => {
+            transactionForm.reset();
+            formTitle.textContent = 'Add New Transaction';
+            saveTransactionBtn.textContent = 'Add Transaction';
+            deleteTransactionBtn.classList.add('hidden');
+            cancelEditBtn.classList.add('hidden');
+            editingTransactionId = null;
+            toggleDebtFields();
+            toggleRecurrenceFields();
+        };
+
+        const showMessage = (msg, isError = false, targetEl) => {
+            targetEl.textContent = msg;
+            targetEl.classList.remove('hidden');
+            targetEl.classList.toggle('text-red-500', isError);
+            targetEl.classList.toggle('text-green-500', !isError);
+            setTimeout(() => {
+                targetEl.classList.add('hidden');
+            }, 5000);
+        };
+
+        const formatCurrency = (amount) => {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+            }).format(amount);
+        };
+
+        const updateSummary = () => {
+            const totalIncome = transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            const totalExpenses = transactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const totalDebt = transactions
+                .filter(t => t.type === 'debt')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            const totalBalance = totalIncome - totalExpenses - totalDebt;
+
+            totalBalanceEl.textContent = formatCurrency(totalBalance);
+            totalIncomeEl.textContent = formatCurrency(totalIncome);
+            totalExpensesEl.textContent = formatCurrency(totalExpenses);
+            totalDebtEl.textContent = formatCurrency(totalDebt);
+
+            if (totalBalance < 0) {
+                totalBalanceEl.classList.remove('text-green-700');
+                totalBalanceEl.classList.add('text-red-700');
+            } else {
+                totalBalanceEl.classList.remove('text-red-700');
+                totalBalanceEl.classList.add('text-green-700');
+            }
+        };
+
+        const renderTransactions = () => {
+            transactionsListEl.innerHTML = '';
+            if (transactions.length === 0) {
+                transactionsListEl.innerHTML = '<p class="text-center text-gray-500">No transactions added yet.</p>';
+                return;
+            }
+
+            const sortedTransactions = transactions.sort((a, b) => {
+                const dateA = a.timestamp ? a.timestamp.toDate() : new Date();
+                const dateB = b.timestamp ? b.timestamp.toDate() : new Date();
+                return dateB - dateA;
+            });
+
+            sortedTransactions.forEach((transaction) => {
+                let bgColor, textColor, sign;
+
+                if (transaction.type === 'income') {
+                    bgColor = 'bg-green-50';
+                    textColor = 'text-green-600';
+                    sign = '+';
+                } else if (transaction.type === 'expense') {
+                    bgColor = 'bg-red-50';
+                    textColor = 'text-red-600';
+                    sign = '-';
+                } else if (transaction.type === 'debt') {
+                    bgColor = 'bg-purple-50';
+                    textColor = 'text-purple-600';
+                    sign = '-';
+                }
+
+                const transactionEl = document.createElement('div');
+                transactionEl.className = `flex justify-between items-center p-4 rounded-xl shadow-sm transition-all duration-300 ${bgColor} hover:bg-gray-100 cursor-pointer`;
+                transactionEl.dataset.id = transaction.id;
+                transactionEl.addEventListener('click', () => editTransaction(transaction));
+
+                let recurrenceText = '';
+                if (transaction.recurrence && transaction.recurrence !== 'none') {
+                    recurrenceText = `<span class="text-xs text-gray-500 ml-2">(${transaction.recurrence})</span>`;
+                }
+
+                let notesText = '';
+                if (transaction.notes) {
+                    notesText = `<p class="text-xs text-gray-400 mt-1">Notes: ${transaction.notes}</p>`;
+                }
+                
+                let debtDetails = '';
+                if (transaction.type === 'debt') {
+                    debtDetails = `<div class="text-xs text-gray-400 mt-1">
+                        ${transaction.interestRate ? `Interest: ${transaction.interestRate}%` : ''}
+                        ${transaction.interestRate && transaction.minPayment ? ' | ' : ''}
+                        ${transaction.minPayment ? `Min. Pmt: $${transaction.minPayment.toFixed(2)}` : ''}
+                    </div>`;
+                }
+                
+                transactionEl.innerHTML = `
+                    <div class="flex flex-col">
+                        <p class="text-gray-800 font-medium">${transaction.description} ${recurrenceText}</p>
+                        <p class="text-sm text-gray-500">${transaction.timestamp ? transaction.timestamp.toDate().toLocaleDateString() : 'N/A'}</p>
+                        ${debtDetails}
+                        ${notesText}
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <p class="text-lg font-semibold ${textColor}">
+                            ${sign} ${formatCurrency(transaction.amount)}
+                        </p>
+                    </div>
+                `;
+                transactionsListEl.appendChild(transactionEl);
+            });
+        };
+
+        const saveTransaction = async (e) => {
+            e.preventDefault();
+            
+            const description = descriptionInput.value.trim();
+            const amount = parseFloat(amountInput.value);
+            const type = typeSelect.value;
+            const recurrence = recurrenceSelect.value;
+            const notes = notesInput.value.trim();
+            const interestRate = type === 'debt' ? parseFloat(interestRateInput.value) || null : null;
+            const minPayment = type === 'debt' ? parseFloat(minPaymentInput.value) || null : null;
+
+            const selectedDays = type === 'income' && (recurrence === 'weekly' || recurrence === 'biweekly') 
+                ? Array.from(daysOfWeekCheckboxes).filter(cb => cb.checked).map(cb => cb.value) 
+                : [];
+            const monthlyDay = type === 'income' && recurrence === 'monthly' ? parseInt(monthlyDayInput.value) || null : null;
+            const nextPayDate = nextPayDateInput.value ? new Date(nextPayDateInput.value) : null;
+            
+            // Validation for recurring income
+            if (type === 'income' && recurrence !== 'none' && !nextPayDate) {
+                showMessage("Please select a 'Next Pay Date' for recurring income.", true, messageBoxEl);
+                return;
+            }
+
+            if (description && !isNaN(amount) && amount > 0) {
+                const transactionData = {
+                    description,
+                    amount,
+                    type,
+                    recurrence,
+                    notes,
+                    interestRate,
+                    minPayment,
+                    selectedDays,
+                    monthlyDay,
+                    nextPayDate: nextPayDate ? nextPayDate.toISOString() : null,
+                };
+                
+                try {
+                    if (editingTransactionId) {
+                        const docRef = doc(db, `artifacts/${appId}/users/${userId}/transactions`, editingTransactionId);
+                        // Merge true is important to not overwrite the timestamp
+                        await setDoc(docRef, transactionData, { merge: true });
+                        showMessage("Transaction updated successfully!", false, messageBoxEl);
+                    } else {
+                        const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/transactions`);
+                        await addDoc(collectionRef, {
+                            ...transactionData,
+                            timestamp: serverTimestamp(),
+                            // Add lastAdded only for new recurring incomes
+                            ...(type === 'income' && recurrence !== 'none' && { lastAdded: serverTimestamp() })
+                        });
+                        showMessage("Transaction added successfully!", false, messageBoxEl);
+                    }
+                } catch (e) {
+                    console.error("Error saving document: ", e);
+                    showMessage("Error saving transaction.", true, messageBoxEl);
+                }
+                
+                resetForm();
+            } else {
+                showMessage("Please enter a valid description and amount.", true, messageBoxEl);
+            }
+        };
+
+        const editTransaction = (transaction) => {
+            editingTransactionId = transaction.id;
+            
+            formTitle.textContent = 'Edit Transaction';
+            saveTransactionBtn.textContent = 'Save Changes';
+            deleteTransactionBtn.classList.remove('hidden');
+            cancelEditBtn.classList.remove('hidden');
+
+            descriptionInput.value = transaction.description;
+            amountInput.value = transaction.amount;
+            typeSelect.value = transaction.type;
+            recurrenceSelect.value = transaction.recurrence;
+            notesInput.value = transaction.notes || '';
+            interestRateInput.value = transaction.interestRate || '';
+            minPaymentInput.value = transaction.minPayment || '';
+            
+            if (transaction.type === 'income' && transaction.recurrence !== 'none') {
+                if (transaction.selectedDays) {
+                    daysOfWeekCheckboxes.forEach(cb => {
+                        cb.checked = transaction.selectedDays.includes(cb.value);
+                    });
+                }
+                monthlyDayInput.value = transaction.monthlyDay || '';
+                nextPayDateInput.value = transaction.nextPayDate ? transaction.nextPayDate.split('T')[0] : '';
+            }
+
+            toggleDebtFields();
+            toggleRecurrenceFields();
+        };
+
+        const deleteTransaction = async () => {
+            if (!editingTransactionId) {
+                return;
+            }
+            try {
+                const docRef = doc(db, `artifacts/${appId}/users/${userId}/transactions`, editingTransactionId);
+                await deleteDoc(docRef);
+                showMessage("Transaction deleted successfully!", false, messageBoxEl);
+                resetForm();
+            } catch (e) {
+                console.error("Error removing document: ", e);
+                showMessage("Error removing transaction.", true, messageBoxEl);
+            }
+        };
+
+        const processRecurringIncome = async (userTransactions) => {
+            const today = new Date();
+            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+            const recurringIncomes = userTransactions.filter(t => t.type === 'income' && t.recurrence !== 'none');
+
+            for (const income of recurringIncomes) {
+                if (!income.nextPayDate) continue;
+
+                const nextPayDate = new Date(income.nextPayDate);
+                let shouldAdd = false;
+                
+                // Compare dates at midnight to avoid issues with timezones and time of day
+                const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                const nextPayDateMidnight = new Date(nextPayDate.getFullYear(), nextPayDate.getMonth(), nextPayDate.getDate());
+
+                if (todayMidnight.getTime() >= nextPayDateMidnight.getTime()) {
+                    // Check if the current day matches the scheduled day
+                    if (income.recurrence === 'weekly' && income.selectedDays.includes(dayNames[today.getDay()])) {
+                        shouldAdd = true;
+                    } else if (income.recurrence === 'biweekly' && income.selectedDays.includes(dayNames[today.getDay()])) {
+                         // Check if at least 14 days have passed since the last auto-added transaction
+                        const lastAddedDate = income.lastAdded ? income.lastAdded.toDate() : new Date(0); // Use epoch if no lastAdded
+                        const daysSinceLastPay = Math.floor((todayMidnight - lastAddedDate) / (1000 * 60 * 60 * 24));
+                        if (daysSinceLastPay >= 14) {
+                            shouldAdd = true;
+                        }
+                    } else if (income.recurrence === 'monthly' && income.monthlyDay === today.getDate()) {
+                        shouldAdd = true;
+                    }
+                }
+                
+                if (shouldAdd) {
+                    try {
+                        const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/transactions`);
+                        await addDoc(collectionRef, {
+                            description: `${income.description} (Recurring)`,
+                            amount: income.amount,
+                            type: 'income',
+                            recurrence: 'none',
+                            notes: `Auto-added from recurring schedule.`,
+                            timestamp: serverTimestamp()
+                        });
+
+                        // Update the nextPayDate for the recurring transaction
+                        const updatedNextPayDate = new Date(nextPayDate);
+                        if (income.recurrence === 'weekly') {
+                            updatedNextPayDate.setDate(updatedNextPayDate.getDate() + 7);
+                        } else if (income.recurrence === 'biweekly') {
+                            updatedNextPayDate.setDate(updatedNextPayDate.getDate() + 14);
+                        } else if (income.recurrence === 'monthly') {
+                            updatedNextPayDate.setMonth(updatedNextPayDate.getMonth() + 1);
+                        }
+
+                        const docRef = doc(db, `artifacts/${appId}/users/${userId}/transactions`, income.id);
+                        await setDoc(docRef, { 
+                            lastAdded: serverTimestamp(),
+                            nextPayDate: updatedNextPayDate.toISOString() 
+                        }, { merge: true });
+
+                    } catch (e) {
+                        console.error("Error adding recurring income: ", e);
+                    }
+                }
+            }
+        };
+
+        const calculateSnowball = () => {
+            snowballResultsEl.innerHTML = '';
+            
+            let debts = transactions.filter(t => t.type === 'debt').sort((a, b) => a.amount - b.amount);
+            if (debts.length === 0) {
+                snowballResultsEl.innerHTML = '<p class="text-center text-gray-500">No debts to track. Add some debt transactions first!</p>';
+                return;
+            }
+
+            let extraPayment = parseFloat(extraPaymentInput.value);
+            if (isNaN(extraPayment) || extraPayment < 0) {
+                extraPayment = 0;
+            }
+
+            const startDate = new Date();
+            let monthCounter = 0;
+            let snowballPayment = extraPayment;
+            let results = [];
+
+            for (let i = 0; i < debts.length; i++) {
+                let currentDebt = { ...debts[i] };
+                let monthsToPayoff = 0;
+                let balance = currentDebt.amount;
+                
+                while (balance > 0) {
+                    monthsToPayoff++;
+                    balance -= (currentDebt.minPayment || 0) + snowballPayment;
+                    if (balance <= 0) {
+                        snowballPayment += currentDebt.minPayment || 0;
+                    }
+                }
+                
+                monthCounter += monthsToPayoff;
+                const payoffDate = new Date(startDate.getFullYear(), startDate.getMonth() + monthCounter, startDate.getDate());
+                
+                results.push({
+                    description: currentDebt.description,
+                    amount: currentDebt.amount,
+                    payoffDate: payoffDate,
+                    months: monthCounter
+                });
+            }
+
+            results.forEach(result => {
+                const resultEl = document.createElement('div');
+                resultEl.className = 'p-4 rounded-xl bg-blue-50 shadow-sm';
+                resultEl.innerHTML = `
+                    <p class="text-gray-800 font-medium">${result.description}</p>
+                    <p class="text-sm text-gray-600">Original Amount: ${formatCurrency(result.amount)}</p>
+                    <p class="text-lg font-semibold text-blue-600">
+                        Payoff Date: ${result.payoffDate.toLocaleDateString()}
+                    </p>
+                    <p class="text-sm text-gray-500">${result.months} months to payoff</p>
+                `;
+                snowballResultsEl.appendChild(resultEl);
+            });
+        };
+
+        const exportSnowballPlan = () => {
+            const extraPayment = parseFloat(extraPaymentInput.value) || 0;
+            
+            let debts = transactions.filter(t => t.type === 'debt').sort((a, b) => a.amount - b.amount);
+            
+            if (debts.length === 0) {
+                alert("Please add some debt transactions first.");
+                return;
+            }
+            
+            let csvContent = "data:text/csv;charset=utf-8,Debt,Original Amount,Interest Rate,Minimum Payment,Months to Payoff,Payoff Date\n";
+            const startDate = new Date();
+            let monthCounter = 0;
+            let snowballPayment = extraPayment;
+            
+            for (let i = 0; i < debts.length; i++) {
+                let currentDebt = { ...debts[i] };
+                let monthsToPayoff = 0;
+                let balance = currentDebt.amount;
+                
+                while (balance > 0) {
+                    monthsToPayoff++;
+                    balance -= (currentDebt.minPayment || 0) + snowballPayment;
+                    if (balance <= 0) {
+                        snowballPayment += currentDebt.minPayment || 0;
+                    }
+                }
+                
+                monthCounter += monthsToPayoff;
+                const payoffDate = new Date(startDate.getFullYear(), startDate.getMonth() + monthCounter, startDate.getDate());
+                const formattedPayoffDate = payoffDate.toLocaleDateString();
+                
+                csvContent += `${currentDebt.description},${currentDebt.amount},${currentDebt.interestRate || 'N/A'},${currentDebt.minPayment || 'N/A'},${monthsToPayoff},${formattedPayoffDate}\n`;
+            }
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "debt_snowball_plan.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+        
+        // --- CALENDAR FUNCTIONS ---
+
+        const renderPaydayCalendar = (date) => {
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            const today = new Date();
+            const firstDayOfMonth = new Date(year, month, 1);
+            const lastDayOfMonth = new Date(year, month + 1, 0);
+            const daysInMonth = lastDayOfMonth.getDate();
+            const startDayOfWeek = firstDayOfMonth.getDay();
+
+            currentMonthYearEl.textContent = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            calendarGridEl.innerHTML = '';
+
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayNames.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'text-sm font-semibold text-gray-600';
+                dayHeader.textContent = day;
+                calendarGridEl.appendChild(dayHeader);
+            });
+
+            for (let i = 0; i < startDayOfWeek; i++) {
+                const emptyDay = document.createElement('div');
+                calendarGridEl.appendChild(emptyDay);
+            }
+
+            const paydays = getPaydaysForMonth(year, month);
+            let upcomingPaydaysHtml = '';
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayEl = document.createElement('div');
+                dayEl.className = 'p-2 rounded-xl text-center text-gray-800';
+                
+                const dayDate = new Date(year, month, day);
+                const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+
+                if (isToday) {
+                    dayEl.classList.add('bg-blue-200', 'font-bold');
+                }
+
+                if (paydays[day] && paydays[day].length > 0) {
+                    dayEl.classList.add('bg-green-500', 'text-white', 'font-bold', 'shadow-md');
+                    paydays[day].forEach(income => {
+                        upcomingPaydaysHtml += `<li>${dayDate.toLocaleDateString()} - ${income.description}: ${formatCurrency(income.amount)}</li>`;
+                    });
+                } else if (dayDate.getDay() === 0 || dayDate.getDay() === 6) {
+                    dayEl.classList.add('bg-gray-200');
+                } else {
+                    dayEl.classList.add('bg-white');
+                }
+
+                dayEl.textContent = day;
+                calendarGridEl.appendChild(dayEl);
+            }
+            upcomingPaydaysListEl.innerHTML = upcomingPaydaysHtml || '<li>No upcoming paydays this month.</li>';
+        };
+
+        const getPaydaysForMonth = (year, month) => {
+            const paydays = {};
+            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            const today = new Date();
+
+            transactions.filter(t => t.type === 'income' && t.recurrence !== 'none').forEach(income => {
+                let nextPayDate = income.nextPayDate ? new Date(income.nextPayDate) : new Date();
+
+                while (nextPayDate.getFullYear() < year || (nextPayDate.getFullYear() === year && nextPayDate.getMonth() <= month)) {
+                    // Check if the date is within the current calendar month
+                    if (nextPayDate.getFullYear() === year && nextPayDate.getMonth() === month) {
+                        const day = nextPayDate.getDate();
+                        if (!paydays[day]) {
+                            paydays[day] = [];
+                        }
+                        paydays[day].push(income);
+                    }
+                    
+                    // Advance the date based on recurrence
+                    if (income.recurrence === 'weekly') {
+                        nextPayDate.setDate(nextPayDate.getDate() + 7);
+                    } else if (income.recurrence === 'biweekly') {
+                        // Advance by 14 days
+                        nextPayDate.setDate(nextPayDate.getDate() + 14);
+                    } else if (income.recurrence === 'monthly') {
+                        nextPayDate.setMonth(nextPayDate.getMonth() + 1);
+                    } else {
+                        break;
+                    }
+                }
+            });
+            return paydays;
+        };
+
+        // --- EVENT LISTENERS ---
+        loginBtn.addEventListener('click', handleLogin);
+        showSignupBtn.addEventListener('click', showSignupForm);
+        createAccountBtn.addEventListener('click', handleSignup);
+        backToLoginBtn.addEventListener('click', showLoginForm);
+        logoutBtn.addEventListener('click', () => signOut(auth));
+
+        typeSelect.addEventListener('change', () => {
+            toggleDebtFields();
+            toggleRecurrenceFields();
+        });
+        recurrenceSelect.addEventListener('change', toggleRecurrenceFields);
+        transactionForm.addEventListener('submit', saveTransaction);
+        saveTransactionBtn.addEventListener('click', saveTransaction);
+        deleteTransactionBtn.addEventListener('click', deleteTransaction);
+        cancelEditBtn.addEventListener('click', resetForm);
+        calculateSnowballBtn.addEventListener('click', calculateSnowball);
+        downloadSnowballBtn.addEventListener('click', exportSnowballPlan);
+
+        prevMonthBtn.addEventListener('click', () => {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+            renderPaydayCalendar(currentCalendarDate);
+        });
+        nextMonthBtn.addEventListener('click', () => {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+            renderPaydayCalendar(currentCalendarDate);
+        });
+
+        // --- FIREBASE AUTH STATE CHANGE HANDLER ---
+        const handleAuthChange = async (user) => {
+            if (user) {
+                userId = user.uid;
+                userIdEl.textContent = userId;
+                authSection.classList.add('hidden');
+                trackerSection.classList.remove('hidden');
+
+                if (unsubscribeFromTransactions) {
+                    unsubscribeFromTransactions();
+                }
+
+                const q = query(collection(db, `artifacts/${appId}/users/${userId}/transactions`));
+                unsubscribeFromTransactions = onSnapshot(q, async (querySnapshot) => {
+                    transactions = querySnapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                    
+                    await processRecurringIncome(transactions);
+
+                    renderTransactions();
+                    updateSummary();
+                    renderPaydayCalendar(currentCalendarDate);
+                });
+
+            } else {
+                userId = '';
+                authSection.classList.remove('hidden');
+                trackerSection.classList.add('hidden');
+                transactions = [];
+                renderTransactions();
+                updateSummary();
+                renderPaydayCalendar(currentCalendarDate);
+            }
+        };
+
+        onAuthStateChanged(auth, handleAuthChange);
+    </script>
 </body>
-
 </html>
