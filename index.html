@@ -141,6 +141,50 @@
                                 <option value="monthly">Monthly</option>
                             </select>
                         </div>
+                        
+                        <div id="recurring-income-fields" class="hidden space-y-4">
+                            <div id="weekly-days-container" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700">Select Day(s) of the Week</label>
+                                <div class="mt-2 grid grid-cols-4 md:grid-cols-7 gap-2">
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="day-of-week" value="sunday" class="form-checkbox text-indigo-600 rounded-md">
+                                        <span class="ml-2 text-sm text-gray-700">Sun</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="day-of-week" value="monday" class="form-checkbox text-indigo-600 rounded-md">
+                                        <span class="ml-2 text-sm text-gray-700">Mon</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="day-of-week" value="tuesday" class="form-checkbox text-indigo-600 rounded-md">
+                                        <span class="ml-2 text-sm text-gray-700">Tue</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="day-of-week" value="wednesday" class="form-checkbox text-indigo-600 rounded-md">
+                                        <span class="ml-2 text-sm text-gray-700">Wed</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="day-of-week" value="thursday" class="form-checkbox text-indigo-600 rounded-md">
+                                        <span class="ml-2 text-sm text-gray-700">Thu</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="day-of-week" value="friday" class="form-checkbox text-indigo-600 rounded-md">
+                                        <span class="ml-2 text-sm text-gray-700">Fri</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="day-of-week" value="saturday" class="form-checkbox text-indigo-600 rounded-md">
+                                        <span class="ml-2 text-sm text-gray-700">Sat</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="monthly-day-container" class="hidden">
+                                <label for="monthly-day" class="block text-sm font-medium text-gray-700">Select Day of the Month</label>
+                                <input type="number" id="monthly-day" min="1" max="31" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., 15 for the 15th">
+                            </div>
+                            <div id="next-pay-date-container">
+                                <label for="next-pay-date" class="block text-sm font-medium text-gray-700">Next Pay Date</label>
+                                <input type="date" id="next-pay-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                            </div>
+                        </div>
 
                         <div>
                             <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
@@ -186,7 +230,7 @@
                 <div class="bg-gray-50 rounded-2xl p-6 md:p-8">
                     <h2 class="text-2xl font-semibold text-center mb-6 text-gray-700">Transaction History</h2>
                     <div id="transactions-list" class="space-y-4">
-                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -196,7 +240,7 @@
         // Firebase imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, addDoc, deleteDoc, setDoc, onSnapshot, collection, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, addDoc, deleteDoc, setDoc, onSnapshot, collection, query, where, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // You can find this in your Firebase Console under Project settings -> General.
         const firebaseConfig = {
@@ -267,6 +311,15 @@
         const snowballResultsEl = document.getElementById('snowball-results');
         const userIdEl = document.getElementById('user-id');
         const messageBoxEl = document.getElementById('message-box');
+        
+        // NEW: Elements for recurring income
+        const recurringIncomeFields = document.getElementById('recurring-income-fields');
+        const weeklyDaysContainer = document.getElementById('weekly-days-container');
+        const monthlyDayContainer = document.getElementById('monthly-day-container');
+        const nextPayDateInput = document.getElementById('next-pay-date');
+        const daysOfWeekCheckboxes = document.querySelectorAll('input[name="day-of-week"]');
+        const monthlyDayInput = document.getElementById('monthly-day');
+
 
         // Main data array
         let transactions = [];
@@ -339,6 +392,28 @@
             }
         };
 
+        // NEW: Function to toggle income recurrence fields
+        const toggleRecurrenceFields = () => {
+            const type = typeSelect.value;
+            const recurrence = recurrenceSelect.value;
+            
+            // Hide all recurrence-specific fields by default
+            recurringIncomeFields.classList.add('hidden');
+            weeklyDaysContainer.classList.add('hidden');
+            monthlyDayContainer.classList.add('hidden');
+            nextPayDateInput.closest('div').classList.add('hidden');
+
+            if (type === 'income' && recurrence !== 'none') {
+                recurringIncomeFields.classList.remove('hidden');
+                nextPayDateInput.closest('div').classList.remove('hidden');
+                if (recurrence === 'weekly' || recurrence === 'biweekly') {
+                    weeklyDaysContainer.classList.remove('hidden');
+                } else if (recurrence === 'monthly') {
+                    monthlyDayContainer.classList.remove('hidden');
+                }
+            }
+        };
+
         // Function to reset the transaction form
         const resetForm = () => {
             transactionForm.reset();
@@ -348,6 +423,7 @@
             cancelEditBtn.classList.add('hidden');
             editingTransactionId = null;
             toggleDebtFields();
+            toggleRecurrenceFields();
         };
 
         // Function to show a temporary message
@@ -483,6 +559,13 @@
             const interestRate = type === 'debt' ? parseFloat(interestRateInput.value) || null : null;
             const minPayment = type === 'debt' ? parseFloat(minPaymentInput.value) || null : null;
 
+            // NEW: Get the recurrence-specific data
+            const selectedDays = type === 'income' && (recurrence === 'weekly' || recurrence === 'biweekly') 
+                ? Array.from(daysOfWeekCheckboxes).filter(cb => cb.checked).map(cb => cb.value) 
+                : [];
+            const monthlyDay = type === 'income' && recurrence === 'monthly' ? parseInt(monthlyDayInput.value) || null : null;
+            const nextPayDate = nextPayDateInput.value ? new Date(nextPayDateInput.value) : null;
+            
             if (description && !isNaN(amount) && amount > 0) {
                 const transactionData = {
                     description,
@@ -491,7 +574,11 @@
                     recurrence,
                     notes,
                     interestRate,
-                    minPayment
+                    minPayment,
+                    selectedDays, // NEW
+                    monthlyDay,   // NEW
+                    nextPayDate: nextPayDate ? nextPayDate.toISOString() : null, // NEW
+                    lastAdded: serverTimestamp() // NEW
                 };
                 
                 try {
@@ -534,7 +621,20 @@
             notesInput.value = transaction.notes || '';
             interestRateInput.value = transaction.interestRate || '';
             minPaymentInput.value = transaction.minPayment || '';
+            
+            // NEW: Populate recurring income fields for editing
+            if (transaction.type === 'income' && transaction.recurrence !== 'none') {
+                if (transaction.selectedDays) {
+                    daysOfWeekCheckboxes.forEach(cb => {
+                        cb.checked = transaction.selectedDays.includes(cb.value);
+                    });
+                }
+                monthlyDayInput.value = transaction.monthlyDay || '';
+                nextPayDateInput.value = transaction.nextPayDate ? transaction.nextPayDate.split('T')[0] : '';
+            }
+
             toggleDebtFields();
+            toggleRecurrenceFields();
         };
 
         // Function to handle deleting a transaction
@@ -550,6 +650,68 @@
             } catch (e) {
                 console.error("Error removing document: ", e);
                 showMessage("Error removing transaction.", true, messageBoxEl);
+            }
+        };
+
+        // NEW: Function to process recurring income
+        const processRecurringIncome = async (userTransactions) => {
+            const today = new Date();
+            const todayDayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+            const todayDayOfMonth = today.getDate();
+            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+            const recurringIncomes = userTransactions.filter(t => t.type === 'income' && t.recurrence !== 'none');
+
+            for (const income of recurringIncomes) {
+                if (!income.nextPayDate) continue;
+
+                let nextPayDate = new Date(income.nextPayDate);
+                let shouldAdd = false;
+                
+                if (today.getTime() >= nextPayDate.getTime()) {
+                    if (income.recurrence === 'weekly' && income.selectedDays.includes(dayNames[todayDayOfWeek])) {
+                        shouldAdd = true;
+                    } else if (income.recurrence === 'biweekly' && income.selectedDays.includes(dayNames[todayDayOfWeek])) {
+                        const daysSinceLastPay = Math.floor((today - income.lastAdded.toDate()) / (1000 * 60 * 60 * 24));
+                        if (daysSinceLastPay >= 14) {
+                            shouldAdd = true;
+                        }
+                    } else if (income.recurrence === 'monthly' && income.monthlyDay === todayDayOfMonth) {
+                        shouldAdd = true;
+                    }
+                }
+                
+                if (shouldAdd) {
+                    try {
+                        const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/transactions`);
+                        await addDoc(collectionRef, {
+                            description: `${income.description} (Recurring)`,
+                            amount: income.amount,
+                            type: 'income',
+                            recurrence: 'none',
+                            notes: `Auto-added from recurring schedule.`,
+                            timestamp: serverTimestamp()
+                        });
+
+                        const updatedNextPayDate = new Date(nextPayDate);
+                        if (income.recurrence === 'weekly') {
+                            updatedNextPayDate.setDate(updatedNextPayDate.getDate() + 7);
+                        } else if (income.recurrence === 'biweekly') {
+                            updatedNextPayDate.setDate(updatedNextPayDate.getDate() + 14);
+                        } else if (income.recurrence === 'monthly') {
+                            updatedNextPayDate.setMonth(updatedNextPayDate.getMonth() + 1);
+                        }
+
+                        const docRef = doc(db, `artifacts/${appId}/users/${userId}/transactions`, income.id);
+                        await setDoc(docRef, { 
+                            lastAdded: serverTimestamp(),
+                            nextPayDate: updatedNextPayDate.toISOString() 
+                        }, { merge: true });
+
+                    } catch (e) {
+                        console.error("Error adding recurring income: ", e);
+                    }
+                }
             }
         };
 
@@ -579,7 +741,7 @@
                 
                 while (balance > 0) {
                     monthsToPayoff++;
-                    balance -= snowballPayment;
+                    balance -= (currentDebt.minPayment || 0) + snowballPayment;
                     if (balance <= 0) {
                         snowballPayment += currentDebt.minPayment || 0;
                     }
@@ -620,12 +782,12 @@
                 alert("Please add some debt transactions first.");
                 return;
             }
-        
+            
             let csvContent = "data:text/csv;charset=utf-8,Debt,Original Amount,Interest Rate,Minimum Payment,Months to Payoff,Payoff Date\n";
             const startDate = new Date();
             let monthCounter = 0;
             let snowballPayment = extraPayment;
-        
+            
             for (let i = 0; i < debts.length; i++) {
                 let currentDebt = { ...debts[i] };
                 let monthsToPayoff = 0;
@@ -633,7 +795,7 @@
                 
                 while (balance > 0) {
                     monthsToPayoff++;
-                    balance -= snowballPayment;
+                    balance -= (currentDebt.minPayment || 0) + snowballPayment;
                     if (balance <= 0) {
                         snowballPayment += currentDebt.minPayment || 0;
                     }
@@ -645,7 +807,7 @@
                 
                 csvContent += `${currentDebt.description},${currentDebt.amount},${currentDebt.interestRate || 'N/A'},${currentDebt.minPayment || 'N/A'},${monthsToPayoff},${formattedPayoffDate}\n`;
             }
-        
+            
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
@@ -656,7 +818,11 @@
         };
         
         // --- TRANSACTION-RELATED EVENT LISTENERS ---
-        typeSelect.addEventListener('change', toggleDebtFields);
+        typeSelect.addEventListener('change', () => {
+            toggleDebtFields();
+            toggleRecurrenceFields();
+        });
+        recurrenceSelect.addEventListener('change', toggleRecurrenceFields);
         transactionForm.addEventListener('submit', saveTransaction);
         saveTransactionBtn.addEventListener('click', saveTransaction);
         deleteTransactionBtn.addEventListener('click', deleteTransaction);
@@ -680,11 +846,15 @@
 
                 // Listen for real-time updates to the transactions
                 const q = query(collection(db, `artifacts/${appId}/users/${userId}/transactions`));
-                unsubscribeFromTransactions = onSnapshot(q, (querySnapshot) => {
+                unsubscribeFromTransactions = onSnapshot(q, async (querySnapshot) => {
                     transactions = querySnapshot.docs.map(doc => ({
                         id: doc.id,
                         ...doc.data()
                     }));
+                    
+                    // NEW: Process recurring income after loading transactions
+                    await processRecurringIncome(transactions);
+
                     renderTransactions();
                     updateSummary();
                 });
