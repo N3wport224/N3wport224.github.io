@@ -712,18 +712,36 @@
                 
                 if (isSameDayAsLastAddition) continue;
 
+                // Check if today is the payday or if a payday was missed
                 if (todayInTimeZone.getTime() >= nextPayDate.getTime()) {
                     let shouldAdd = false;
-                    
-                    if (income.recurrence === 'weekly' && income.selectedDays.includes(dayNames[todayInTimeZone.getDay()])) {
-                        shouldAdd = true;
-                    } else if (income.recurrence === 'biweekly' && income.selectedDays.includes(dayNames[todayInTimeZone.getDay()])) {
-                        const daysSinceLastPay = Math.floor((todayInTimeZone - lastAddedDate) / (1000 * 60 * 60 * 24));
-                        if (daysSinceLastPay >= 13) {
-                             shouldAdd = true;
+                    let newNextPayDate;
+
+                    if (income.recurrence === 'weekly') {
+                        // The original `nextPayDate` should always be a selected day of the week.
+                        // We check if today is a selected payday and if the next payday has passed.
+                        if (income.selectedDays.includes(dayNames[todayInTimeZone.getDay()]) && todayInTimeZone.getTime() >= nextPayDate.getTime()) {
+                            shouldAdd = true;
+                            newNextPayDate = new Date(nextPayDate);
+                            // Keep advancing the next payday until it's in the future
+                            while (newNextPayDate.getTime() <= todayInTimeZone.getTime()) {
+                                newNextPayDate.setDate(newNextPayDate.getDate() + 7);
+                            }
+                        }
+                    } else if (income.recurrence === 'biweekly') {
+                        // The original `nextPayDate` must be a selected day of the week.
+                        const twoWeeksInMs = 14 * 24 * 60 * 60 * 1000;
+                        if (income.selectedDays.includes(dayNames[todayInTimeZone.getDay()]) && (todayInTimeZone.getTime() - nextPayDate.getTime()) % twoWeeksInMs === 0) {
+                            shouldAdd = true;
+                            newNextPayDate = new Date(nextPayDate);
+                            while (newNextPayDate.getTime() <= todayInTimeZone.getTime()) {
+                                newNextPayDate.setDate(newNextPayDate.getDate() + 14);
+                            }
                         }
                     } else if (income.recurrence === 'monthly' && income.monthlyDay === todayInTimeZone.getDate()) {
                         shouldAdd = true;
+                        newNextPayDate = new Date(nextPayDate);
+                        newNextPayDate.setMonth(newNextPayDate.getMonth() + 1);
                     }
                 
                     if (shouldAdd) {
@@ -738,19 +756,10 @@
                                 timestamp: serverTimestamp()
                             });
 
-                            const updatedNextPayDate = new Date(nextPayDate);
-                            if (income.recurrence === 'weekly') {
-                                updatedNextPayDate.setDate(updatedNextPayDate.getDate() + 7);
-                            } else if (income.recurrence === 'biweekly') {
-                                updatedNextPayDate.setDate(updatedNextPayDate.getDate() + 14);
-                            } else if (income.recurrence === 'monthly') {
-                                updatedNextPayDate.setMonth(updatedNextPayDate.getMonth() + 1);
-                            }
-
                             const docRef = doc(db, `artifacts/${appId}/users/${userId}/transactions`, income.id);
                             await setDoc(docRef, { 
                                 lastAdded: serverTimestamp(),
-                                nextPayDate: updatedNextPayDate.toISOString().split('T')[0]
+                                nextPayDate: newNextPayDate.toISOString().split('T')[0]
                             }, { merge: true });
 
                         } catch (e) {
@@ -939,46 +948,46 @@
 
         const getPaydaysForMonth = (year, month) => {
             const paydays = {};
+            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
             
             transactions.filter(t => t.type === 'income' && t.recurrence !== 'none').forEach(income => {
-                if (!income.nextPayDate || !income.timeZone) return;
+                if (!income.nextPayDate) return;
 
-                const firstDayOfMonth = new Date(year, month, 1);
-                const lastDayOfMonth = new Date(year, month + 1, 0);
+                const startDate = new Date(income.nextPayDate + 'T12:00:00Z'); // Use UTC to avoid timezone issues
 
-                // Use the new helper function to get the date object in the correct time zone
-                let nextPayDate = getPaydayDateInTimeZone(income.nextPayDate, income.timeZone);
+                if (income.recurrence === 'weekly' || income.recurrence === 'biweekly') {
+                    const daysToAdd = income.recurrence === 'weekly' ? 7 : 14;
+                    const firstDayOfMonth = new Date(year, month, 1, 12);
+                    const lastDayOfMonth = new Date(year, month + 1, 0, 12);
 
-                // Advance the date to the first payday that occurs on or after the start of the current month.
-                while (nextPayDate < firstDayOfMonth) {
-                    if (income.recurrence === 'weekly') {
-                        nextPayDate.setDate(nextPayDate.getDate() + 7);
-                    } else if (income.recurrence === 'biweekly') {
-                        nextPayDate.setDate(nextPayDate.getDate() + 14);
-                    } else if (income.recurrence === 'monthly') {
-                        nextPayDate.setMonth(nextPayDate.getMonth() + 1);
-                    } else {
-                        break;
+                    let currentDate = new Date(startDate.getTime());
+                    
+                    // Advance to the first payday that is on or before the start of the current month
+                    while (currentDate.getTime() < firstDayOfMonth.getTime()) {
+                        currentDate.setDate(currentDate.getDate() + daysToAdd);
                     }
-                }
 
-                // Add all paydays for the current month.
-                while (nextPayDate <= lastDayOfMonth && nextPayDate.getMonth() === month) {
-                    const day = nextPayDate.getDate();
-                    if (!paydays[day]) {
-                        paydays[day] = [];
+                    // Iterate through the month and find paydays
+                    while (currentDate.getMonth() === month && currentDate.getFullYear() === year && currentDate.getTime() <= lastDayOfMonth.getTime()) {
+                        if (income.selectedDays.includes(dayNames[currentDate.getDay()])) {
+                            const day = currentDate.getDate();
+                            if (!paydays[day]) {
+                                paydays[day] = [];
+                            }
+                            paydays[day].push(income);
+                        }
+                        currentDate.setDate(currentDate.getDate() + daysToAdd);
                     }
-                    paydays[day].push(income);
-
-                    // Advance the date for the next iteration.
-                    if (income.recurrence === 'weekly') {
-                        nextPayDate.setDate(nextPayDate.getDate() + 7);
-                    } else if (income.recurrence === 'biweekly') {
-                        nextPayDate.setDate(nextPayDate.getDate() + 14);
-                    } else if (income.recurrence === 'monthly') {
-                        nextPayDate.setMonth(nextPayDate.getMonth() + 1);
-                    } else {
-                        break;
+                } else if (income.recurrence === 'monthly') {
+                    const monthlyDay = income.monthlyDay;
+                    // Check if the monthly day is valid for the target month (e.g., no Feb 30)
+                    const tempDate = new Date(year, month, monthlyDay);
+                    if (tempDate.getMonth() === month && tempDate.getDate() === monthlyDay) {
+                        const day = tempDate.getDate();
+                        if (!paydays[day]) {
+                            paydays[day] = [];
+                        }
+                        paydays[day].push(income);
                     }
                 }
             });
