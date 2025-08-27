@@ -903,26 +903,38 @@
         const getPaydaysForMonth = (year, month) => {
             const paydays = {};
             const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-            const today = new Date();
-
+            
             transactions.filter(t => t.type === 'income' && t.recurrence !== 'none').forEach(income => {
-                let nextPayDate = income.nextPayDate ? new Date(income.nextPayDate) : new Date();
+                if (!income.nextPayDate) return;
 
-                while (nextPayDate.getFullYear() < year || (nextPayDate.getFullYear() === year && nextPayDate.getMonth() <= month)) {
-                    // Check if the date is within the current calendar month
-                    if (nextPayDate.getFullYear() === year && nextPayDate.getMonth() === month) {
-                        const day = nextPayDate.getDate();
-                        if (!paydays[day]) {
-                            paydays[day] = [];
-                        }
-                        paydays[day].push(income);
+                let nextPayDate = new Date(income.nextPayDate);
+                
+                // Keep advancing the date until it's beyond the end of the current calendar month
+                while (nextPayDate.getFullYear() < year || (nextPayDate.getFullYear() === year && nextPayDate.getMonth() < month)) {
+                     if (income.recurrence === 'weekly') {
+                        nextPayDate.setDate(nextPayDate.getDate() + 7);
+                    } else if (income.recurrence === 'biweekly') {
+                        nextPayDate.setDate(nextPayDate.getDate() + 14);
+                    } else if (income.recurrence === 'monthly') {
+                        nextPayDate.setMonth(nextPayDate.getMonth() + 1);
+                    } else {
+                        break;
                     }
-                    
-                    // Advance the date based on recurrence
+                }
+
+                // Now that we have the first payday within or after the current month,
+                // we can start checking for paydays within the current month.
+                while (nextPayDate.getFullYear() === year && nextPayDate.getMonth() === month) {
+                    const day = nextPayDate.getDate();
+                    if (!paydays[day]) {
+                        paydays[day] = [];
+                    }
+                    paydays[day].push(income);
+
+                    // Advance to the next payday
                     if (income.recurrence === 'weekly') {
                         nextPayDate.setDate(nextPayDate.getDate() + 7);
                     } else if (income.recurrence === 'biweekly') {
-                        // Advance by 14 days
                         nextPayDate.setDate(nextPayDate.getDate() + 14);
                     } else if (income.recurrence === 'monthly') {
                         nextPayDate.setMonth(nextPayDate.getMonth() + 1);
