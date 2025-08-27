@@ -953,41 +953,60 @@
             transactions.filter(t => t.type === 'income' && t.recurrence !== 'none').forEach(income => {
                 if (!income.nextPayDate) return;
 
-                const startDate = new Date(income.nextPayDate + 'T12:00:00Z'); // Use UTC to avoid timezone issues
+                // Create a date object from the nextPayDate string to start from
+                let nextPayDate = new Date(income.nextPayDate);
+                nextPayDate.setHours(12, 0, 0, 0); // Set to noon to avoid timezone shifts
 
+                // Create a date object for the first day of the target month
+                const firstDayOfMonth = new Date(year, month, 1);
+                firstDayOfMonth.setHours(0, 0, 0, 0);
+
+                // Create a date object for the last day of the target month
+                const lastDayOfMonth = new Date(year, month + 1, 0);
+                lastDayOfMonth.setHours(23, 59, 59, 999);
+
+                // Advance the start date to the first potential payday that falls within or after the target month.
+                // This ensures we don't miss paydays that occurred earlier in the schedule but fall in our target month.
                 if (income.recurrence === 'weekly' || income.recurrence === 'biweekly') {
                     const daysToAdd = income.recurrence === 'weekly' ? 7 : 14;
-                    const firstDayOfMonth = new Date(year, month, 1, 12);
-                    const lastDayOfMonth = new Date(year, month + 1, 0, 12);
-
-                    let currentDate = new Date(startDate.getTime());
-                    
-                    // Advance to the first payday that is on or before the start of the current month
-                    while (currentDate.getTime() < firstDayOfMonth.getTime()) {
-                        currentDate.setDate(currentDate.getDate() + daysToAdd);
+                    // The start date might be in the past. We need to find the next valid payday.
+                    while (nextPayDate < firstDayOfMonth) {
+                        nextPayDate.setDate(nextPayDate.getDate() + daysToAdd);
                     }
+                }
 
-                    // Iterate through the month and find paydays
-                    while (currentDate.getMonth() === month && currentDate.getFullYear() === year && currentDate.getTime() <= lastDayOfMonth.getTime()) {
-                        if (income.selectedDays.includes(dayNames[currentDate.getDay()])) {
-                            const day = currentDate.getDate();
-                            if (!paydays[day]) {
-                                paydays[day] = [];
+                // Now, iterate through the month starting from the calculated next payday.
+                let currentDate = new Date(nextPayDate);
+
+                while (currentDate <= lastDayOfMonth) {
+                    // Check if the current date is in the target month and is a valid payday
+                    if (currentDate.getFullYear() === year && currentDate.getMonth() === month) {
+                        const day = currentDate.getDate();
+                        if (income.recurrence === 'weekly' || income.recurrence === 'biweekly') {
+                            if (income.selectedDays && income.selectedDays.includes(dayNames[currentDate.getDay()])) {
+                                if (!paydays[day]) {
+                                    paydays[day] = [];
+                                }
+                                paydays[day].push(income);
                             }
-                            paydays[day].push(income);
+                        } else if (income.recurrence === 'monthly') {
+                            if (day === income.monthlyDay) {
+                                if (!paydays[day]) {
+                                    paydays[day] = [];
+                                }
+                                paydays[day].push(income);
+                            }
                         }
-                        currentDate.setDate(currentDate.getDate() + daysToAdd);
                     }
-                } else if (income.recurrence === 'monthly') {
-                    const monthlyDay = income.monthlyDay;
-                    // Check if the monthly day is valid for the target month (e.g., no Feb 30)
-                    const tempDate = new Date(year, month, monthlyDay);
-                    if (tempDate.getMonth() === month && tempDate.getDate() === monthlyDay) {
-                        const day = tempDate.getDate();
-                        if (!paydays[day]) {
-                            paydays[day] = [];
-                        }
-                        paydays[day].push(income);
+
+                    // Advance the date to the next potential payday
+                    if (income.recurrence === 'weekly') {
+                        currentDate.setDate(currentDate.getDate() + 7);
+                    } else if (income.recurrence === 'biweekly') {
+                        currentDate.setDate(currentDate.getDate() + 14);
+                    } else if (income.recurrence === 'monthly') {
+                        // For monthly, we just check the single day, so we break after the first check
+                        break;
                     }
                 }
             });
