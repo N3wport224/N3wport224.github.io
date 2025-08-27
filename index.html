@@ -270,6 +270,7 @@
 
         // Main data array
         let transactions = [];
+        let editingTransactionId = null;
 
         // --- AUTHENTICATION FUNCTIONS ---
 
@@ -490,8 +491,7 @@
                     recurrence,
                     notes,
                     interestRate,
-                    minPayment,
-                    timestamp: serverTimestamp()
+                    minPayment
                 };
                 
                 try {
@@ -501,7 +501,10 @@
                         showMessage("Transaction updated successfully!", false, messageBoxEl);
                     } else {
                         const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/transactions`);
-                        await addDoc(collectionRef, transactionData);
+                        await addDoc(collectionRef, {
+                            ...transactionData,
+                            timestamp: serverTimestamp()
+                        });
                         showMessage("Transaction added successfully!", false, messageBoxEl);
                     }
                 } catch (e) {
@@ -670,13 +673,6 @@
                 authSection.classList.add('hidden');
                 trackerSection.classList.remove('hidden');
 
-                // Initialize Firestore and subscribe to transactions
-                if (!app) {
-                    app = initializeApp(firebaseConfig);
-                    db = getFirestore(app);
-                    auth = getAuth(app);
-                }
-
                 // Unsubscribe from previous user's data if it exists
                 if (unsubscribeFromTransactions) {
                     unsubscribeFromTransactions();
@@ -706,15 +702,6 @@
 
         // Set up the listener for auth state changes
         onAuthStateChanged(auth, handleAuthChange);
-
-        // --- INITIALIZATION ---
-        // Initialize Firebase on page load
-        // This is done once to set up the app and auth service
-        if (!app) {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
-        }
     </script>
 </body>
 </html>
