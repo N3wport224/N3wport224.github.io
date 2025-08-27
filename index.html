@@ -184,6 +184,10 @@
                                 <label for="next-pay-date" class="block text-sm font-medium text-gray-700">Next Pay Date</label>
                                 <input type="date" id="next-pay-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
                             </div>
+                            <div>
+                                <label for="timezone-select" class="block text-sm font-medium text-gray-700">Time Zone</label>
+                                <select id="timezone-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"></select>
+                            </div>
                         </div>
 
                         <div>
@@ -349,6 +353,7 @@
         const nextPayDateInput = document.getElementById('next-pay-date');
         const daysOfWeekCheckboxes = document.querySelectorAll('input[name="day-of-week"]');
         const monthlyDayInput = document.getElementById('monthly-day');
+        const timezoneSelect = document.getElementById('timezone-select');
 
         // NEW: Calendar elements
         const calendarGridEl = document.getElementById('calendar-grid');
@@ -424,10 +429,14 @@
             weeklyDaysContainer.classList.add('hidden');
             monthlyDayContainer.classList.add('hidden');
             nextPayDateInput.closest('div').classList.add('hidden');
+            timezoneSelect.closest('div').classList.add('hidden');
+
 
             if (type === 'income' && recurrence !== 'none') {
                 recurringIncomeFields.classList.remove('hidden');
                 nextPayDateInput.closest('div').classList.remove('hidden');
+                timezoneSelect.closest('div').classList.remove('hidden');
+
                 if (recurrence === 'weekly' || recurrence === 'biweekly') {
                     weeklyDaysContainer.classList.remove('hidden');
                 } else if (recurrence === 'monthly') {
@@ -579,11 +588,13 @@
                 ? Array.from(daysOfWeekCheckboxes).filter(cb => cb.checked).map(cb => cb.value) 
                 : [];
             const monthlyDay = type === 'income' && recurrence === 'monthly' ? parseInt(monthlyDayInput.value) || null : null;
-            const nextPayDate = nextPayDateInput.value ? new Date(nextPayDateInput.value) : null;
             
+            let nextPayDate = nextPayDateInput.value ? nextPayDateInput.value : null;
+            let timeZone = timezoneSelect.value;
+
             // Validation for recurring income
-            if (type === 'income' && recurrence !== 'none' && !nextPayDate) {
-                showMessage("Please select a 'Next Pay Date' for recurring income.", true, messageBoxEl);
+            if (type === 'income' && recurrence !== 'none' && (!nextPayDate || !timeZone)) {
+                showMessage("Please select a 'Next Pay Date' and 'Time Zone' for recurring income.", true, messageBoxEl);
                 return;
             }
 
@@ -598,7 +609,8 @@
                     minPayment,
                     selectedDays,
                     monthlyDay,
-                    nextPayDate: nextPayDate ? nextPayDate.toISOString() : null,
+                    nextPayDate,
+                    timeZone
                 };
                 
                 try {
@@ -651,7 +663,8 @@
                     });
                 }
                 monthlyDayInput.value = transaction.monthlyDay || '';
-                nextPayDateInput.value = transaction.nextPayDate ? transaction.nextPayDate.split('T')[0] : '';
+                nextPayDateInput.value = transaction.nextPayDate || '';
+                timezoneSelect.value = transaction.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
             }
 
             toggleDebtFields();
@@ -672,6 +685,12 @@
                 showMessage("Error removing transaction.", true, messageBoxEl);
             }
         };
+        
+        const getPaydayDateInTimeZone = (dateString, timeZone) => {
+            const [year, month, day] = dateString.split('-').map(Number);
+            const zonedDate = new Date(Date.UTC(year, month - 1, day, 12));
+            return new Date(zonedDate.toLocaleString('en-US', { timeZone: timeZone }));
+        };
 
         const processRecurringIncome = async (userTransactions) => {
             const today = new Date();
@@ -680,61 +699,63 @@
             const recurringIncomes = userTransactions.filter(t => t.type === 'income' && t.recurrence !== 'none');
 
             for (const income of recurringIncomes) {
-                if (!income.nextPayDate) continue;
-
-                const nextPayDate = new Date(income.nextPayDate);
-                let shouldAdd = false;
+                if (!income.nextPayDate || !income.timeZone) continue;
                 
-                // Compare dates at midnight to avoid issues with timezones and time of day
-                const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-                const nextPayDateMidnight = new Date(nextPayDate.getFullYear(), nextPayDate.getMonth(), nextPayDate.getDate());
+                const nextPayDate = getPaydayDateInTimeZone(income.nextPayDate, income.timeZone);
+                const todayInTimeZone = getPaydayDateInTimeZone(today.toISOString().split('T')[0], income.timeZone);
 
-                if (todayMidnight.getTime() >= nextPayDateMidnight.getTime()) {
-                    // Check if the current day matches the scheduled day
-                    if (income.recurrence === 'weekly' && income.selectedDays.includes(dayNames[today.getDay()])) {
+                // Check to prevent duplicate additions on the same day
+                const lastAddedDate = income.lastAdded ? income.lastAdded.toDate() : new Date(0);
+                const isSameDayAsLastAddition = lastAddedDate.getDate() === todayInTimeZone.getDate() &&
+                                                lastAddedDate.getMonth() === todayInTimeZone.getMonth() &&
+                                                lastAddedDate.getFullYear() === todayInTimeZone.getFullYear();
+                
+                if (isSameDayAsLastAddition) continue;
+
+                if (todayInTimeZone.getTime() >= nextPayDate.getTime()) {
+                    let shouldAdd = false;
+                    
+                    if (income.recurrence === 'weekly' && income.selectedDays.includes(dayNames[todayInTimeZone.getDay()])) {
                         shouldAdd = true;
-                    } else if (income.recurrence === 'biweekly' && income.selectedDays.includes(dayNames[today.getDay()])) {
-                         // Check if at least 14 days have passed since the last auto-added transaction
-                        const lastAddedDate = income.lastAdded ? income.lastAdded.toDate() : new Date(0); // Use epoch if no lastAdded
-                        const daysSinceLastPay = Math.floor((todayMidnight - lastAddedDate) / (1000 * 60 * 60 * 24));
-                        if (daysSinceLastPay >= 14) {
-                            shouldAdd = true;
+                    } else if (income.recurrence === 'biweekly' && income.selectedDays.includes(dayNames[todayInTimeZone.getDay()])) {
+                        const daysSinceLastPay = Math.floor((todayInTimeZone - lastAddedDate) / (1000 * 60 * 60 * 24));
+                        if (daysSinceLastPay >= 13) {
+                             shouldAdd = true;
                         }
-                    } else if (income.recurrence === 'monthly' && income.monthlyDay === today.getDate()) {
+                    } else if (income.recurrence === 'monthly' && income.monthlyDay === todayInTimeZone.getDate()) {
                         shouldAdd = true;
                     }
-                }
                 
-                if (shouldAdd) {
-                    try {
-                        const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/transactions`);
-                        await addDoc(collectionRef, {
-                            description: `${income.description} (Recurring)`,
-                            amount: income.amount,
-                            type: 'income',
-                            recurrence: 'none',
-                            notes: `Auto-added from recurring schedule.`,
-                            timestamp: serverTimestamp()
-                        });
+                    if (shouldAdd) {
+                        try {
+                            const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/transactions`);
+                            await addDoc(collectionRef, {
+                                description: `${income.description} (Recurring)`,
+                                amount: income.amount,
+                                type: 'income',
+                                recurrence: 'none',
+                                notes: `Auto-added from recurring schedule.`,
+                                timestamp: serverTimestamp()
+                            });
 
-                        // Update the nextPayDate for the recurring transaction
-                        const updatedNextPayDate = new Date(nextPayDate);
-                        if (income.recurrence === 'weekly') {
-                            updatedNextPayDate.setDate(updatedNextPayDate.getDate() + 7);
-                        } else if (income.recurrence === 'biweekly') {
-                            updatedNextPayDate.setDate(updatedNextPayDate.getDate() + 14);
-                        } else if (income.recurrence === 'monthly') {
-                            updatedNextPayDate.setMonth(updatedNextPayDate.getMonth() + 1);
+                            const updatedNextPayDate = new Date(nextPayDate);
+                            if (income.recurrence === 'weekly') {
+                                updatedNextPayDate.setDate(updatedNextPayDate.getDate() + 7);
+                            } else if (income.recurrence === 'biweekly') {
+                                updatedNextPayDate.setDate(updatedNextPayDate.getDate() + 14);
+                            } else if (income.recurrence === 'monthly') {
+                                updatedNextPayDate.setMonth(updatedNextPayDate.getMonth() + 1);
+                            }
+
+                            const docRef = doc(db, `artifacts/${appId}/users/${userId}/transactions`, income.id);
+                            await setDoc(docRef, { 
+                                lastAdded: serverTimestamp(),
+                                nextPayDate: updatedNextPayDate.toISOString().split('T')[0]
+                            }, { merge: true });
+
+                        } catch (e) {
+                            console.error("Error adding recurring income: ", e);
                         }
-
-                        const docRef = doc(db, `artifacts/${appId}/users/${userId}/transactions`, income.id);
-                        await setDoc(docRef, { 
-                            lastAdded: serverTimestamp(),
-                            nextPayDate: updatedNextPayDate.toISOString() 
-                        }, { merge: true });
-
-                    } catch (e) {
-                        console.error("Error adding recurring income: ", e);
                     }
                 }
             }
@@ -755,31 +776,40 @@
             }
 
             const startDate = new Date();
-            let monthCounter = 0;
+            let totalMonths = 0;
             let snowballPayment = extraPayment;
             let results = [];
 
-            for (let i = 0; i < debts.length; i++) {
-                let currentDebt = { ...debts[i] };
+            for (const debt of debts) {
+                let currentBalance = debt.amount;
+                let monthlyInterestRate = (debt.interestRate || 0) / 100 / 12;
                 let monthsToPayoff = 0;
-                let balance = currentDebt.amount;
-                
-                while (balance > 0) {
-                    monthsToPayoff++;
-                    balance -= (currentDebt.minPayment || 0) + snowballPayment;
-                    if (balance <= 0) {
-                        snowballPayment += currentDebt.minPayment || 0;
+                let effectiveMonthlyPayment = (debt.minPayment || 0) + snowballPayment;
+
+                while (currentBalance > 0) {
+                    if (effectiveMonthlyPayment <= (currentBalance * monthlyInterestRate)) {
+                        snowballResultsEl.innerHTML = `<p class="text-center text-red-500">Your payments are too low to pay off "${debt.description}" with its interest rate. Increase your extra payment.</p>`;
+                        return;
                     }
+
+                    const interest = currentBalance * monthlyInterestRate;
+                    currentBalance += interest;
+                    currentBalance -= effectiveMonthlyPayment;
+                    monthsToPayoff++;
                 }
-                
-                monthCounter += monthsToPayoff;
-                const payoffDate = new Date(startDate.getFullYear(), startDate.getMonth() + monthCounter, startDate.getDate());
+
+                totalMonths += monthsToPayoff;
+                // Corrected: Add the minimum payment of the paid-off debt to the snowball
+                snowballPayment += debt.minPayment || 0;
+
+                const payoffDate = new Date();
+                payoffDate.setMonth(startDate.getMonth() + totalMonths);
                 
                 results.push({
-                    description: currentDebt.description,
-                    amount: currentDebt.amount,
+                    description: debt.description,
+                    amount: debt.amount,
                     payoffDate: payoffDate,
-                    months: monthCounter
+                    months: totalMonths
                 });
             }
 
@@ -810,27 +840,34 @@
             
             let csvContent = "data:text/csv;charset=utf-8,Debt,Original Amount,Interest Rate,Minimum Payment,Months to Payoff,Payoff Date\n";
             const startDate = new Date();
-            let monthCounter = 0;
+            let totalMonths = 0;
             let snowballPayment = extraPayment;
             
-            for (let i = 0; i < debts.length; i++) {
-                let currentDebt = { ...debts[i] };
+            for (const debt of debts) {
+                let currentBalance = debt.amount;
+                let monthlyInterestRate = (debt.interestRate || 0) / 100 / 12;
                 let monthsToPayoff = 0;
-                let balance = currentDebt.amount;
-                
-                while (balance > 0) {
-                    monthsToPayoff++;
-                    balance -= (currentDebt.minPayment || 0) + snowballPayment;
-                    if (balance <= 0) {
-                        snowballPayment += currentDebt.minPayment || 0;
+                let effectiveMonthlyPayment = (debt.minPayment || 0) + snowballPayment;
+
+                while (currentBalance > 0) {
+                     if (effectiveMonthlyPayment <= (currentBalance * monthlyInterestRate)) {
+                        alert(`Your payments are too low to pay off "${debt.description}" with its interest rate.`);
+                        return;
                     }
+                    const interest = currentBalance * monthlyInterestRate;
+                    currentBalance += interest;
+                    currentBalance -= effectiveMonthlyPayment;
+                    monthsToPayoff++;
                 }
-                
-                monthCounter += monthsToPayoff;
-                const payoffDate = new Date(startDate.getFullYear(), startDate.getMonth() + monthCounter, startDate.getDate());
+
+                totalMonths += monthsToPayoff;
+                snowballPayment += debt.minPayment || 0;
+
+                const payoffDate = new Date();
+                payoffDate.setMonth(startDate.getMonth() + totalMonths);
                 const formattedPayoffDate = payoffDate.toLocaleDateString();
                 
-                csvContent += `${currentDebt.description},${currentDebt.amount},${currentDebt.interestRate || 'N/A'},${currentDebt.minPayment || 'N/A'},${monthsToPayoff},${formattedPayoffDate}\n`;
+                csvContent += `${debt.description},${debt.amount},${debt.interestRate || 'N/A'},${debt.minPayment || 'N/A'},${totalMonths},${formattedPayoffDate}\n`;
             }
             
             const encodedUri = encodeURI(csvContent);
@@ -904,11 +941,13 @@
             const paydays = {};
             
             transactions.filter(t => t.type === 'income' && t.recurrence !== 'none').forEach(income => {
-                if (!income.nextPayDate) return;
+                if (!income.nextPayDate || !income.timeZone) return;
 
-                let nextPayDate = new Date(income.nextPayDate);
                 const firstDayOfMonth = new Date(year, month, 1);
                 const lastDayOfMonth = new Date(year, month + 1, 0);
+
+                // Use the new helper function to get the date object in the correct time zone
+                let nextPayDate = getPaydayDateInTimeZone(income.nextPayDate, income.timeZone);
 
                 // Advance the date to the first payday that occurs on or after the start of the current month.
                 while (nextPayDate < firstDayOfMonth) {
@@ -919,7 +958,6 @@
                     } else if (income.recurrence === 'monthly') {
                         nextPayDate.setMonth(nextPayDate.getMonth() + 1);
                     } else {
-                        // Handle unknown recurrence
                         break;
                     }
                 }
@@ -945,6 +983,21 @@
                 }
             });
             return paydays;
+        };
+        
+        // --- TIME ZONE FUNCTIONS ---
+        const populateTimezoneSelector = () => {
+            const timezones = Intl.supportedValuesOf('timeZone');
+            const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            
+            timezones.forEach(tz => {
+                const option = document.createElement('option');
+                option.value = tz;
+                option.textContent = tz;
+                timezoneSelect.appendChild(option);
+            });
+            
+            timezoneSelect.value = userTimeZone;
         };
 
         // --- EVENT LISTENERS ---
@@ -974,6 +1027,8 @@
             currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
             renderPaydayCalendar(currentCalendarDate);
         });
+        
+        populateTimezoneSelector();
 
         // --- FIREBASE AUTH STATE CHANGE HANDLER ---
         const handleAuthChange = async (user) => {
