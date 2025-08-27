@@ -74,197 +74,213 @@
                     Log Out
                 </button>
             </div>
+            
             <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
                 <h1 class="text-3xl md:text-4xl font-bold text-center mb-6 text-gray-800">Financial Tracker</h1>
                 
-                <div class="flex flex-col md:flex-row justify-between items-center bg-gray-100 rounded-2xl p-6 mb-6">
-                    <div class="text-center md:text-left mb-4 md:mb-0">
-                        <p class="text-lg text-gray-600 font-medium">Current Balance</p>
-                        <p id="total-balance" class="text-4xl md:text-5xl font-extrabold text-green-700 mt-1">$0.00</p>
+                <div class="flex flex-wrap justify-center space-x-2 md:space-x-4 mb-8">
+                    <button class="tab-btn px-4 py-2 rounded-xl text-white bg-indigo-600" data-page="dashboard">Dashboard</button>
+                    <button class="tab-btn px-4 py-2 rounded-xl text-gray-800 bg-gray-200 hover:bg-gray-300 transition-colors" data-page="transactions">Transactions</button>
+                    <button class="tab-btn px-4 py-2 rounded-xl text-gray-800 bg-gray-200 hover:bg-gray-300 transition-colors" data-page="debt-snowball">Debt Snowball</button>
+                    <button class="tab-btn px-4 py-2 rounded-xl text-gray-800 bg-gray-200 hover:bg-gray-300 transition-colors" data-page="calendar">Calendar</button>
+                </div>
+
+                <div id="dashboard-page" class="page-container">
+                    <div class="flex flex-col md:flex-row justify-between items-center bg-gray-100 rounded-2xl p-6 mb-6">
+                        <div class="text-center md:text-left mb-4 md:mb-0">
+                            <p class="text-lg text-gray-600 font-medium">Current Balance</p>
+                            <p id="total-balance" class="text-4xl md:text-5xl font-extrabold text-green-700 mt-1">$0.00</p>
+                        </div>
+                        <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-8">
+                            <div class="text-center">
+                                <p class="text-base text-gray-600">Total Income</p>
+                                <p id="total-income" class="text-xl font-semibold text-green-600 mt-1">$0.00</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-base text-gray-600">Total Expenses</p>
+                                <p id="total-expenses" class="text-xl font-semibold text-red-600 mt-1">$0.00</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-base text-gray-600">Total Debt</p>
+                                <p id="total-debt" class="text-xl font-semibold text-purple-600 mt-1">$0.00</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-8">
-                        <div class="text-center">
-                            <p class="text-base text-gray-600">Total Income</p>
-                            <p id="total-income" class="text-xl font-semibold text-green-600 mt-1">$0.00</p>
-                        </div>
-                        <div class="text-center">
-                            <p class="text-base text-gray-600">Total Expenses</p>
-                            <p id="total-expenses" class="text-xl font-semibold text-red-600 mt-1">$0.00</p>
-                        </div>
-                        <div class="text-center">
-                            <p class="text-base text-gray-600">Total Debt</p>
-                            <p id="total-debt" class="text-xl font-semibold text-purple-600 mt-1">$0.00</p>
+                    <div class="bg-gray-50 rounded-2xl p-6 md:p-8">
+                        <h2 class="text-2xl font-semibold text-center mb-6 text-gray-700">Transaction History</h2>
+                        <div id="transactions-list" class="space-y-4">
+                            <p class="text-center text-gray-500">No transactions added yet.</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 mb-6">
-                    <h2 id="form-title" class="text-2xl font-semibold text-center mb-6 text-gray-700">Add New Transaction</h2>
-                    <form id="transaction-form" class="space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                                <input type="text" id="description" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., Groceries, Salary" required>
-                            </div>
-                            <div>
-                                <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
-                                <input type="number" id="amount" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., 50.00" required>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label for="type" class="block text-sm font-medium text-gray-700">Type</label>
-                            <select id="type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-                                <option value="income">Income</option>
-                                <option value="expense">Expense</option>
-                                <option value="debt">Debt</option>
-                            </select>
-                        </div>
-                        
-                        <div id="debt-fields" class="space-y-4 hidden">
-                            <div>
-                                <label for="interest-rate" class="block text-sm font-medium text-gray-700">Interest Rate (%)</label>
-                                <input type="number" id="interest-rate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., 5.5">
-                            </div>
-                            <div>
-                                <label for="min-payment" class="block text-sm font-medium text-gray-700">Minimum Payment</label>
-                                <input type="number" id="min-payment" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., 50.00">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label for="recurrence" class="block text-sm font-medium text-gray-700">Recurrence</label>
-                            <select id="recurrence" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-                                <option value="none">None</option>
-                                <option value="weekly">Weekly</option>
-                                <option value="biweekly">Bi-weekly</option>
-                                <option value="monthly">Monthly</option>
-                            </select>
-                        </div>
-                        
-                        <div id="recurring-income-fields" class="hidden space-y-4">
-                            <div id="weekly-days-container" class="hidden">
-                                <label class="block text-sm font-medium text-gray-700">Select Day(s) of the Week</label>
-                                <div class="mt-2 grid grid-cols-4 md:grid-cols-7 gap-2">
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="day-of-week" value="sunday" class="form-checkbox text-indigo-600 rounded-md">
-                                        <span class="ml-2 text-sm text-gray-700">Sun</span>
-                                    </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="day-of-week" value="monday" class="form-checkbox text-indigo-600 rounded-md">
-                                        <span class="ml-2 text-sm text-gray-700">Mon</span>
-                                    </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="day-of-week" value="tuesday" class="form-checkbox text-indigo-600 rounded-md">
-                                        <span class="ml-2 text-sm text-gray-700">Tue</span>
-                                    </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="day-of-week" value="wednesday" class="form-checkbox text-indigo-600 rounded-md">
-                                        <span class="ml-2 text-sm text-gray-700">Wed</span>
-                                    </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="day-of-week" value="thursday" class="form-checkbox text-indigo-600 rounded-md">
-                                        <span class="ml-2 text-sm text-gray-700">Thu</span>
-                                    </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="day-of-week" value="friday" class="form-checkbox text-indigo-600 rounded-md">
-                                        <span class="ml-2 text-sm text-gray-700">Fri</span>
-                                    </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="day-of-week" value="saturday" class="form-checkbox text-indigo-600 rounded-md">
-                                        <span class="ml-2 text-sm text-gray-700">Sat</span>
-                                    </label>
+                <div id="transactions-page" class="page-container hidden">
+                    <div class="bg-gray-50 rounded-2xl p-6 md:p-8 mb-6">
+                        <h2 id="form-title" class="text-2xl font-semibold text-center mb-6 text-gray-700">Add New Transaction</h2>
+                        <form id="transaction-form" class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                                    <input type="text" id="description" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., Groceries, Salary" required>
+                                </div>
+                                <div>
+                                    <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
+                                    <input type="number" id="amount" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., 50.00" required>
                                 </div>
                             </div>
-                            <div id="monthly-day-container" class="hidden">
-                                <label for="monthly-day" class="block text-sm font-medium text-gray-700">Select Day of the Month</label>
-                                <input type="number" id="monthly-day" min="1" max="31" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., 15 for the 15th">
-                            </div>
-                            <div id="next-pay-date-container">
-                                <label for="next-pay-date" class="block text-sm font-medium text-gray-700">Next Pay Date</label>
-                                <input type="date" id="next-pay-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-                            </div>
-                            <div>
-                                <label for="timezone-select" class="block text-sm font-medium text-gray-700">Time Zone</label>
-                                <select id="timezone-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"></select>
-                            </div>
-                        </div>
 
-                        <div>
-                            <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
-                            <textarea id="notes" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" rows="3" placeholder="Add any relevant notes here..."></textarea>
+                            <div>
+                                <label for="type" class="block text-sm font-medium text-gray-700">Type</label>
+                                <select id="type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                                    <option value="income">Income</option>
+                                    <option value="expense">Expense</option>
+                                    <option value="debt">Debt</option>
+                                </select>
+                            </div>
+                            
+                            <div id="debt-fields" class="space-y-4 hidden">
+                                <div>
+                                    <label for="interest-rate" class="block text-sm font-medium text-gray-700">Interest Rate (%)</label>
+                                    <input type="number" id="interest-rate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., 5.5">
+                                </div>
+                                <div>
+                                    <label for="min-payment" class="block text-sm font-medium text-gray-700">Minimum Payment</label>
+                                    <input type="number" id="min-payment" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., 50.00">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="recurrence" class="block text-sm font-medium text-gray-700">Recurrence</label>
+                                <select id="recurrence" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                                    <option value="none">None</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="biweekly">Bi-weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                            </div>
+                            
+                            <div id="recurring-income-fields" class="hidden space-y-4">
+                                <div id="weekly-days-container" class="hidden">
+                                    <label class="block text-sm font-medium text-gray-700">Select Day(s) of the Week</label>
+                                    <div class="mt-2 grid grid-cols-4 md:grid-cols-7 gap-2">
+                                        <label class="inline-flex items-center">
+                                            <input type="checkbox" name="day-of-week" value="sunday" class="form-checkbox text-indigo-600 rounded-md">
+                                            <span class="ml-2 text-sm text-gray-700">Sun</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="checkbox" name="day-of-week" value="monday" class="form-checkbox text-indigo-600 rounded-md">
+                                            <span class="ml-2 text-sm text-gray-700">Mon</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="checkbox" name="day-of-week" value="tuesday" class="form-checkbox text-indigo-600 rounded-md">
+                                            <span class="ml-2 text-sm text-gray-700">Tue</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="checkbox" name="day-of-week" value="wednesday" class="form-checkbox text-indigo-600 rounded-md">
+                                            <span class="ml-2 text-sm text-gray-700">Wed</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="checkbox" name="day-of-week" value="thursday" class="form-checkbox text-indigo-600 rounded-md">
+                                            <span class="ml-2 text-sm text-gray-700">Thu</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="checkbox" name="day-of-week" value="friday" class="form-checkbox text-indigo-600 rounded-md">
+                                            <span class="ml-2 text-sm text-gray-700">Fri</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="checkbox" name="day-of-week" value="saturday" class="form-checkbox text-indigo-600 rounded-md">
+                                            <span class="ml-2 text-sm text-gray-700">Sat</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div id="monthly-day-container" class="hidden">
+                                    <label for="monthly-day" class="block text-sm font-medium text-gray-700">Select Day of the Month</label>
+                                    <input type="number" id="monthly-day" min="1" max="31" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" placeholder="e.g., 15 for the 15th">
+                                </div>
+                                <div id="next-pay-date-container">
+                                    <label for="next-pay-date" class="block text-sm font-medium text-gray-700">Next Pay Date</label>
+                                    <input type="date" id="next-pay-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                                </div>
+                                <div>
+                                    <label for="timezone-select" class="block text-sm font-medium text-gray-700">Time Zone</label>
+                                    <select id="timezone-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"></select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
+                                <textarea id="notes" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2" rows="3" placeholder="Add any relevant notes here..."></textarea>
+                            </div>
+                            
+                            <div class="flex flex-col sm:flex-row justify-center md:justify-end space-y-2 sm:space-y-0 sm:space-x-4 mt-6">
+                                <button type="button" id="save-transaction-btn" class="bg-indigo-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-indigo-600 transition-colors">
+                                    Add Transaction
+                                </button>
+                                <button type="button" id="delete-transaction-btn" class="bg-red-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-red-600 transition-colors hidden">
+                                    Delete Transaction
+                                </button>
+                                <button type="button" id="cancel-edit-btn" class="bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-xl shadow-md hover:bg-gray-400 transition-colors hidden">
+                                    Cancel
+                                </button>
+                            </div>
+                            <div id="message-box" class="hidden text-center text-sm font-medium mt-2"></div>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="debt-snowball-page" class="page-container hidden">
+                    <div class="bg-gray-50 rounded-2xl p-6 md:p-8 mb-6">
+                        <h2 class="text-2xl font-semibold text-center mb-6 text-gray-700">Debt Snowball Tracker</h2>
+                        <div class="flex flex-col md:flex-row items-center justify-center md:justify-start space-y-4 md:space-y-0 md:space-x-4">
+                            <label for="extra-payment" class="text-sm font-medium text-gray-700">Monthly Extra Payment</label>
+                            <div class="relative w-full md:w-auto">
+                                <input type="number" id="extra-payment" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 pl-8" value="0">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                            </div>
+                            <button type="button" id="calculate-snowball" class="bg-blue-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-blue-600 transition-colors">
+                                Calculate
+                            </button>
+                            <button type="button" id="download-snowball" class="bg-gray-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-gray-600 transition-colors">
+                                Download Plan
+                            </button>
                         </div>
                         
-                        <div class="flex flex-col sm:flex-row justify-center md:justify-end space-y-2 sm:space-y-0 sm:space-x-4 mt-6">
-                            <button type="button" id="save-transaction-btn" class="bg-indigo-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-indigo-600 transition-colors">
-                                Add Transaction
+                        <div id="snowball-results" class="mt-6 space-y-4">
+                            <p class="text-center text-gray-500">Add some debts and an extra payment to calculate your plan.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="calendar-page" class="page-container hidden">
+                    <div class="bg-gray-50 rounded-2xl p-6 md:p-8 mb-6">
+                        <h2 class="text-2xl font-semibold text-center mb-6 text-gray-700">Payday Calendar</h2>
+                        <div id="calendar-header" class="flex justify-between items-center mb-4">
+                            <button id="prev-month-btn" class="bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
                             </button>
-                            <button type="button" id="delete-transaction-btn" class="bg-red-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-red-600 transition-colors hidden">
-                                Delete Transaction
-                            </button>
-                            <button type="button" id="cancel-edit-btn" class="bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-xl shadow-md hover:bg-gray-400 transition-colors hidden">
-                                Cancel
+                            <h3 id="current-month-year" class="text-lg font-bold"></h3>
+                            <button id="next-month-btn" class="bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
                             </button>
                         </div>
-                        <div id="message-box" class="hidden text-center text-sm font-medium mt-2"></div>
-                    </form>
-                </div>
-
-                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 mb-6">
-                    <h2 class="text-2xl font-semibold text-center mb-6 text-gray-700">Debt Snowball Tracker</h2>
-                    <div class="flex flex-col md:flex-row items-center justify-center md:justify-start space-y-4 md:space-y-0 md:space-x-4">
-                        <label for="extra-payment" class="text-sm font-medium text-gray-700">Monthly Extra Payment</label>
-                        <div class="relative w-full md:w-auto">
-                            <input type="number" id="extra-payment" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 pl-8" value="0">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                        <div id="calendar-grid" class="grid grid-cols-7 gap-2 text-center">
+                            <div class="text-sm font-semibold text-gray-600">Sun</div>
+                            <div class="text-sm font-semibold text-gray-600">Mon</div>
+                            <div class="text-sm font-semibold text-gray-600">Tue</div>
+                            <div class="text-sm font-semibold text-gray-600">Wed</div>
+                            <div class="text-sm font-semibold text-gray-600">Thu</div>
+                            <div class="text-sm font-semibold text-gray-600">Fri</div>
+                            <div class="text-sm font-semibold text-gray-600">Sat</div>
                         </div>
-                        <button type="button" id="calculate-snowball" class="bg-blue-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-blue-600 transition-colors">
-                            Calculate
-                        </button>
-                        <button type="button" id="download-snowball" class="bg-gray-500 text-white font-medium py-2 px-6 rounded-xl shadow-md hover:bg-gray-600 transition-colors">
-                            Download Plan
-                        </button>
-                    </div>
-                    
-                    <div id="snowball-results" class="mt-6 space-y-4">
-                        <p class="text-center text-gray-500">Add some debts and an extra payment to calculate your plan.</p>
-                    </div>
-                </div>
-
-                <div class="bg-gray-50 rounded-2xl p-6 md:p-8 mb-6">
-                    <h2 class="text-2xl font-semibold text-center mb-6 text-gray-700">Payday Calendar</h2>
-                    <div id="calendar-header" class="flex justify-between items-center mb-4">
-                        <button id="prev-month-btn" class="bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </button>
-                        <h3 id="current-month-year" class="text-lg font-bold"></h3>
-                        <button id="next-month-btn" class="bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div id="calendar-grid" class="grid grid-cols-7 gap-2 text-center">
-                        <div class="text-sm font-semibold text-gray-600">Sun</div>
-                        <div class="text-sm font-semibold text-gray-600">Mon</div>
-                        <div class="text-sm font-semibold text-gray-600">Tue</div>
-                        <div class="text-sm font-semibold text-gray-600">Wed</div>
-                        <div class="text-sm font-semibold text-gray-600">Thu</div>
-                        <div class="text-sm font-semibold text-gray-600">Fri</div>
-                        <div class="text-sm font-semibold text-gray-600">Sat</div>
-                    </div>
-                    <div id="upcoming-paydays" class="mt-4 p-4 rounded-xl bg-green-50">
-                        <h4 class="font-semibold text-green-700 mb-2">Upcoming Paydays:</h4>
-                        <ul id="upcoming-paydays-list" class="list-disc list-inside text-sm text-green-600">
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="bg-gray-50 rounded-2xl p-6 md:p-8">
-                    <h2 class="text-2xl font-semibold text-center mb-6 text-gray-700">Transaction History</h2>
-                    <div id="transactions-list" class="space-y-4">
+                        <div id="upcoming-paydays" class="mt-4 p-4 rounded-xl bg-green-50">
+                            <h4 class="font-semibold text-green-700 mb-2">Upcoming Paydays:</h4>
+                            <ul id="upcoming-paydays-list" class="list-disc list-inside text-sm text-green-600">
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -346,7 +362,7 @@
         const userIdEl = document.getElementById('user-id');
         const messageBoxEl = document.getElementById('message-box');
         
-        // NEW: Elements for recurring income
+        // Elements for recurring income
         const recurringIncomeFields = document.getElementById('recurring-income-fields');
         const weeklyDaysContainer = document.getElementById('weekly-days-container');
         const monthlyDayContainer = document.getElementById('monthly-day-container');
@@ -355,13 +371,17 @@
         const monthlyDayInput = document.getElementById('monthly-day');
         const timezoneSelect = document.getElementById('timezone-select');
 
-        // NEW: Calendar elements
+        // Calendar elements
         const calendarGridEl = document.getElementById('calendar-grid');
         const currentMonthYearEl = document.getElementById('current-month-year');
         const prevMonthBtn = document.getElementById('prev-month-btn');
         const nextMonthBtn = document.getElementById('next-month-btn');
         const upcomingPaydaysListEl = document.getElementById('upcoming-paydays-list');
         let currentCalendarDate = new Date();
+
+        // NEW: Tabbed navigation elements
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const pageContainers = document.querySelectorAll('.page-container');
 
         // Main data array
         let transactions = [];
@@ -818,7 +838,8 @@
                     description: debt.description,
                     amount: debt.amount,
                     payoffDate: payoffDate,
-                    months: totalMonths
+                    months: monthsToPayoff, // Corrected: Use monthsToPayoff for individual debt's time
+                    cumulativeMonths: totalMonths // Corrected: Add a new property for the cumulative months
                 });
             }
 
@@ -831,7 +852,7 @@
                     <p class="text-lg font-semibold text-blue-600">
                         Payoff Date: ${result.payoffDate.toLocaleDateString()}
                     </p>
-                    <p class="text-sm text-gray-500">${result.months} months to payoff</p>
+                    <p class="text-sm text-gray-500">Paid off in ${result.months} months. Total payoff time: ${result.cumulativeMonths} months.</p>
                 `;
                 snowballResultsEl.appendChild(resultEl);
             });
@@ -948,73 +969,57 @@
 
         const getPaydaysForMonth = (year, month) => {
             const paydays = {};
-            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
             
             transactions.filter(t => t.type === 'income' && t.recurrence !== 'none').forEach(income => {
                 if (!income.nextPayDate) return;
 
-                // Create a date object from the nextPayDate string to start from
-                let nextPayDate = new Date(income.nextPayDate);
-                // Set time to noon to avoid timezone issues
-                nextPayDate.setHours(12, 0, 0, 0);
-
-                // Create a date object for the first day of the target month
                 const firstDayOfMonth = new Date(year, month, 1);
-                firstDayOfMonth.setHours(0, 0, 0, 0);
-
-                // Create a date object for the last day of the target month
                 const lastDayOfMonth = new Date(year, month + 1, 0);
-                lastDayOfMonth.setHours(23, 59, 59, 999);
-                
-                let currentDate = new Date(nextPayDate);
-                
-                // If the nextPayDate is before the current calendar month, advance it to the start of the month
+
+                let currentDate = new Date(income.nextPayDate);
+                currentDate.setHours(12, 0, 0, 0);
+
+                // Advance to the first payday that is on or after the first day of the target month
                 while (currentDate < firstDayOfMonth) {
                     if (income.recurrence === 'weekly') {
                         currentDate.setDate(currentDate.getDate() + 7);
                     } else if (income.recurrence === 'biweekly') {
                         currentDate.setDate(currentDate.getDate() + 14);
                     } else if (income.recurrence === 'monthly') {
-                        currentDate.setMonth(currentDate.getMonth() + 1);
-                        if (currentDate.getDate() !== income.monthlyDay) {
-                            // Correct the day if it moved due to month length
-                            currentDate.setDate(income.monthlyDay);
+                        let newMonth = currentDate.getMonth() + 1;
+                        let newYear = currentDate.getFullYear();
+                        if (newMonth > 11) {
+                            newMonth = 0;
+                            newYear++;
                         }
-                    } else {
-                        break;
+                        // Handles months with fewer days gracefully (e.g., February)
+                        const newDate = new Date(newYear, newMonth, Math.min(parseInt(income.monthlyDay), new Date(newYear, newMonth + 1, 0).getDate()));
+                        currentDate = newDate;
                     }
                 }
-
+                
+                // Now, add all paydays within the current month
                 while (currentDate <= lastDayOfMonth) {
-                    if (currentDate.getFullYear() === year && currentDate.getMonth() === month) {
-                        const day = currentDate.getDate();
-                        let isPayday = false;
-                        
-                        if (income.recurrence === 'weekly' || income.recurrence === 'biweekly') {
-                            if (income.selectedDays && income.selectedDays.includes(dayNames[currentDate.getDay()])) {
-                                isPayday = true;
-                            }
-                        } else if (income.recurrence === 'monthly') {
-                            if (day === income.monthlyDay) {
-                                isPayday = true;
-                            }
-                        }
-                        
-                        if (isPayday) {
-                            if (!paydays[day]) {
-                                paydays[day] = [];
-                            }
-                            paydays[day].push(income);
-                        }
+                    const day = currentDate.getDate();
+                    if (!paydays[day]) {
+                        paydays[day] = [];
                     }
+                    paydays[day].push(income);
 
+                    // Advance to the next potential payday
                     if (income.recurrence === 'weekly') {
                         currentDate.setDate(currentDate.getDate() + 7);
                     } else if (income.recurrence === 'biweekly') {
                         currentDate.setDate(currentDate.getDate() + 14);
                     } else if (income.recurrence === 'monthly') {
-                        // For monthly, we just check the single day, so we break after the first check
-                        break;
+                        let newMonth = currentDate.getMonth() + 1;
+                        let newYear = currentDate.getFullYear();
+                        if (newMonth > 11) {
+                            newMonth = 0;
+                            newYear++;
+                        }
+                        const newDate = new Date(newYear, newMonth, Math.min(parseInt(income.monthlyDay), new Date(newYear, newMonth + 1, 0).getDate()));
+                        currentDate = newDate;
                     }
                 }
             });
@@ -1034,6 +1039,25 @@
             });
             
             timezoneSelect.value = userTimeZone;
+        };
+
+        // --- TAB NAVIGATION FUNCTIONALITY ---
+        const showPage = (pageId) => {
+            pageContainers.forEach(container => {
+                container.classList.add('hidden');
+            });
+            tabButtons.forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-800');
+            });
+
+            document.getElementById(pageId).classList.remove('hidden');
+            document.querySelector(`[data-page="${pageId.replace('-page', '')}"]`).classList.add('bg-indigo-600', 'text-white');
+            document.querySelector(`[data-page="${pageId.replace('-page', '')}"]`).classList.remove('bg-gray-200', 'text-gray-800');
+
+            if (pageId === 'calendar-page') {
+                renderPaydayCalendar(currentCalendarDate);
+            }
         };
 
         // --- EVENT LISTENERS ---
@@ -1063,6 +1087,13 @@
             currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
             renderPaydayCalendar(currentCalendarDate);
         });
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const pageId = e.target.dataset.page;
+                showPage(`${pageId}-page`);
+            });
+        });
         
         populateTimezoneSelector();
 
@@ -1087,9 +1118,9 @@
                     
                     await processRecurringIncome(transactions);
 
-                    renderTransactions();
                     updateSummary();
-                    renderPaydayCalendar(currentCalendarDate);
+                    renderTransactions();
+                    renderPaydayCalendar(currentCalendarDate); // Ensure calendar is rendered on data change
                 });
 
             } else {
@@ -1097,8 +1128,8 @@
                 authSection.classList.remove('hidden');
                 trackerSection.classList.add('hidden');
                 transactions = [];
-                renderTransactions();
                 updateSummary();
+                renderTransactions();
                 renderPaydayCalendar(currentCalendarDate);
             }
         };
