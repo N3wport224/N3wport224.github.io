@@ -683,7 +683,7 @@
                 }
 
                 // Listen for real-time updates to the transactions
-                const q = query(collection(db, `artifacts/${firebaseConfig.appId}/users/${userId}/transactions`));
+                const q = query(collection(db, `artifacts/${appId}/users/${userId}/transactions`));
                 unsubscribeFromTransactions = onSnapshot(q, (querySnapshot) => {
                     transactions = querySnapshot.docs.map(doc => ({
                         id: doc.id,
