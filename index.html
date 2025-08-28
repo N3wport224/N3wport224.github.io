@@ -40,7 +40,7 @@
                 <h1 class="text-2xl font-bold">Finance Tracker</h1>
                 <span class="mt-1 ml-0 text-sm text-gray-500 sm:ml-4 sm:mt-0">User ID: <span id="user-id" class="font-mono"></span></span>
             </div>
-            <button id="logout-btn" class="w-full mt-4 py-2 text-sm text-white bg-red-500 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 sm:w-auto sm:mt-0 sm:px-4">Logout</button>
+            <button id="logout-btn" class="w-full mt-4 py-2 text-sm text-white bg-red-500 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 sm:w-auto sm:px-4 sm:mt-0">Logout</button>
         </header>
 
         <nav class="flex justify-around p-2 mb-6 space-x-2 bg-white rounded-xl shadow-sm md:justify-start">
@@ -223,19 +223,19 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // Your web app's Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyDAMs4fq-aM3YJuBux2v4XRirGXGtW_bt4",
-            authDomain: "financial-tracker-705f1.firebaseapp.com",
-            projectId: "financial-tracker-705f1",
-            storageBucket: "financial-tracker-705f1.firebasestorage.app",
-            messagingSenderId: "284361332931",
-            appId: "1:284361332931:web:b287647d246eb70a49aa76"
-            measurementId: "G-VLF5B7LN6B"
-        };
+              apiKey: "AIzaSyDAMs4fq-aM3YJuBux2v4XRirGXGtW_bt4",
+              authDomain: "financial-tracker-705f1.firebaseapp.com",
+              projectId: "financial-tracker-705f1",
+              storageBucket: "financial-tracker-705f1.firebasestorage.app",
+              messagingSenderId: "284361332931",
+              appId: "1:284361332931:web:b287647d246eb70a49aa76",
+              measurementId: "G-VLF5B7LN6B"
+            };
         
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
@@ -374,7 +374,6 @@
             monthlyDayContainer.classList.add('hidden');
             nextPayDateInput.closest('div').classList.add('hidden');
             timezoneSelect.closest('div').classList.add('hidden');
-
 
             if (type === 'income' && recurrence !== 'none') {
                 recurringIncomeFields.classList.remove('hidden');
