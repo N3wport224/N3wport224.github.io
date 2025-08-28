@@ -221,11 +221,15 @@
 
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js" type="module"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js" type="module"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js" type="module"></script>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, doc, setDoc, deleteDoc, onSnapshot, serverTimestamp, query } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js';
+
         // Your Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDAMs4fq-aM3YJuBux2v4XRirGXGtW_bt4",
@@ -238,9 +242,9 @@
         };
         
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
         // --- DOM ELEMENTS ---
         const authSection = document.getElementById('auth-section');
@@ -417,7 +421,7 @@
             const email = loginEmailInput.value;
             const password = loginPasswordInput.value;
             try {
-                await auth.signInWithEmailAndPassword(email, password);
+                await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
                 showMessage(`Login failed: ${error.message}`, true, loginMessageBoxEl);
             }
@@ -439,7 +443,7 @@
             }
 
             try {
-                await auth.createUserWithEmailAndPassword(email, password);
+                await createUserWithEmailAndPassword(auth, email, password);
             } catch (error) {
                 showMessage(`Signup failed: ${error.message}`, true, signupMessageBoxEl);
             }
@@ -495,16 +499,15 @@
                 };
                 
                 try {
+                    const docRef = doc(db, `users/${userId}/transactions`, editingTransactionId || 'new');
                     if (editingTransactionId) {
-                        const docRef = db.collection(`users/${userId}/transactions`).doc(editingTransactionId);
-                        await docRef.set(transactionData, { merge: true });
+                        await setDoc(docRef, transactionData, { merge: true });
                         showMessage("Transaction updated successfully!", false, messageBoxEl);
                     } else {
-                        const collectionRef = db.collection(`users/${userId}/transactions`);
-                        await collectionRef.add({
+                        await addDoc(collection(db, `users/${userId}/transactions`), {
                             ...transactionData,
-                            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                            ...(type === 'income' && recurrence !== 'none' && { lastAdded: firebase.firestore.FieldValue.serverTimestamp() })
+                            timestamp: serverTimestamp(),
+                            ...(type === 'income' && recurrence !== 'none' && { lastAdded: serverTimestamp() })
                         });
                         showMessage("Transaction added successfully!", false, messageBoxEl);
                     }
@@ -542,6 +545,7 @@
                     });
                 }
                 monthlyDayInput.value = transaction.monthlyDay || '';
+                // Ensure nextPayDateInput is a valid string
                 nextPayDateInput.value = transaction.nextPayDate || '';
                 timezoneSelect.value = transaction.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
             }
@@ -555,8 +559,8 @@
                 return;
             }
             try {
-                const docRef = db.collection(`users/${userId}/transactions`).doc(editingTransactionId);
-                await docRef.delete();
+                const docRef = doc(db, `users/${userId}/transactions`, editingTransactionId);
+                await deleteDoc(docRef);
                 showMessage("Transaction deleted successfully!", false, messageBoxEl);
                 resetForm();
             } catch (e) {
@@ -622,19 +626,19 @@
                 
                     if (shouldAdd) {
                         try {
-                            const collectionRef = db.collection(`users/${userId}/transactions`);
-                            await collectionRef.add({
+                            const collectionRef = collection(db, `users/${userId}/transactions`);
+                            await addDoc(collectionRef, {
                                 description: `${income.description} (Recurring)`,
                                 amount: income.amount,
                                 type: 'income',
                                 recurrence: 'none',
                                 notes: `Auto-added from recurring schedule.`,
-                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                                timestamp: serverTimestamp()
                             });
         
-                            const docRef = db.collection(`users/${userId}/transactions`).doc(income.id);
-                            await docRef.set({ 
-                                lastAdded: firebase.firestore.FieldValue.serverTimestamp(),
+                            const docRef = doc(db, `users/${userId}/transactions`, income.id);
+                            await setDoc(docRef, { 
+                                lastAdded: serverTimestamp(),
                                 nextPayDate: newNextPayDate.toISOString().split('T')[0]
                             }, { merge: true });
         
@@ -904,7 +908,7 @@
         showSignupBtn.addEventListener('click', showSignupForm);
         createAccountBtn.addEventListener('click', handleSignup);
         backToLoginBtn.addEventListener('click', showLoginForm);
-        logoutBtn.addEventListener('click', () => auth.signOut());
+        logoutBtn.addEventListener('click', () => signOut(auth));
 
         typeSelect.addEventListener('change', () => {
             toggleDebtFields();
@@ -948,8 +952,8 @@
                     unsubscribeFromTransactions();
                 }
                 
-                const q = db.collection(`users/${userId}/transactions`);
-                unsubscribeFromTransactions = q.onSnapshot(async (querySnapshot) => {
+                const q = query(collection(db, `users/${userId}/transactions`));
+                unsubscribeFromTransactions = onSnapshot(q, async (querySnapshot) => {
                     transactions = querySnapshot.docs.map(doc => ({
                         id: doc.id,
                         ...doc.data()
@@ -973,7 +977,7 @@
             }
         };
 
-        auth.onAuthStateChanged(handleAuthChange);
+        onAuthStateChanged(auth, handleAuthChange);
     </script>
 </body>
 </html>
