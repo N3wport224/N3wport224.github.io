@@ -253,11 +253,9 @@
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const { collection, addDoc, doc, setDoc, deleteDoc, query, onSnapshot, serverTimestamp } = firebase.firestore;
-        const { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } = firebase.auth;
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
         // --- GLOBAL VARIABLES ---
         let userId = '';
