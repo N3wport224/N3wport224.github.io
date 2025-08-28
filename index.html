@@ -80,6 +80,15 @@
             </div>
             
             <div class="bg-white p-6 rounded-xl shadow-lg mb-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Initial Balance</h3>
+                <div class="space-y-4">
+                    <label for="initial-balance-input" class="block text-gray-700">Set Current Balance</label>
+                    <input type="number" id="initial-balance-input" step="0.01" value="0" class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <button id="set-balance-btn" class="w-full bg-indigo-600 text-white p-3 rounded-md font-semibold hover:bg-indigo-700 transition duration-200">Update Balance</button>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg mb-6">
                 <h3 class="text-2xl font-bold text-gray-800 mb-4" id="form-title">Add New Transaction</h3>
                 <form id="transaction-form" class="space-y-4">
                     <div>
@@ -207,7 +216,7 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, collection, addDoc, doc, setDoc, deleteDoc, onSnapshot, serverTimestamp, query, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // Your Firebase configuration (REPLACE WITH YOURS)
+        // Your Firebase configuration 
         const firebaseConfig = {
             apiKey: "AIzaSyDAMs4fq-aM3YJuBux2v4XRirGXGtW_bt4",
             authDomain: "financial-tracker-705f1.firebaseapp.com",
@@ -217,7 +226,7 @@
             appId: "1:284361332931:web:b287647d246eb70a49aa76",
             measurementId: "G-VLF5B7LN6B"
         };
-
+        
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
