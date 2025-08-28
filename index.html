@@ -395,16 +395,32 @@
                         const amountClass = transaction.type === 'income' ? 'text-green-600' : (transaction.type === 'expense' ? 'text-red-600' : 'text-blue-600');
                         
                         transactionEl.className = 'flex justify-between items-center p-4 bg-white rounded-xl shadow-sm cursor-pointer hover:bg-gray-100 transition-colors';
-                        transactionEl.innerHTML = `
-                            <div>
-                                <p class="font-medium text-gray-800">${transaction.description}</p>
-                                <p class="text-sm text-gray-500">${new Date(transaction.timestamp.toDate()).toLocaleDateString()}</p>
-                                <p class="text-xs text-gray-400">Type: ${transaction.type}</p>
-                            </div>
-                            <div class="${amountClass} font-bold text-lg">
-                                ${formatCurrency(transaction.amount)}
-                            </div>
-                        `;
+                        
+                        // Use textContent to prevent XSS
+                        const descriptionP = document.createElement('p');
+                        descriptionP.className = 'font-medium text-gray-800';
+                        descriptionP.textContent = transaction.description;
+
+                        const dateP = document.createElement('p');
+                        dateP.className = 'text-sm text-gray-500';
+                        dateP.textContent = new Date(transaction.timestamp.toDate()).toLocaleDateString();
+
+                        const typeP = document.createElement('p');
+                        typeP.className = 'text-xs text-gray-400';
+                        typeP.textContent = `Type: ${transaction.type}`;
+
+                        const amountDiv = document.createElement('div');
+                        amountDiv.className = `${amountClass} font-bold text-lg`;
+                        amountDiv.textContent = formatCurrency(transaction.amount);
+
+                        const textDiv = document.createElement('div');
+                        textDiv.appendChild(descriptionP);
+                        textDiv.appendChild(dateP);
+                        textDiv.appendChild(typeP);
+
+                        transactionEl.appendChild(textDiv);
+                        transactionEl.appendChild(amountDiv);
+                        
                         transactionEl.addEventListener('click', () => editTransaction(transaction));
                         transactionsListEl.appendChild(transactionEl);
                     });
