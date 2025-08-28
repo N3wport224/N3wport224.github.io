@@ -3,244 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Tracker</title>
+    <title>Debt Snowball Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+<body class="bg-gray-100 font-sans">
+    <header class="bg-white shadow-sm p-4 text-center">
+        <h1 class="text-3xl font-bold text-indigo-600">Debt Snowball Tracker</h1>
+    </header>
 
-    <div class="container mx-auto p-4 md:p-8">
+    <main id="auth-section" class="flex items-center justify-center min-h-screen">
+        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+            <div id="login-form">
+                <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Login</h2>
+                <div class="space-y-4">
+                    <input type="email" id="login-email" placeholder="Email" class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <input type="password" id="login-password" placeholder="Password" class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <button id="login-btn" class="w-full bg-indigo-600 text-white p-3 rounded-md font-semibold hover:bg-indigo-700 transition duration-200">Login</button>
+                </div>
+                <p class="mt-4 text-center text-gray-600">Don't have an account? <a href="#" id="show-signup-btn" class="text-indigo-600 hover:underline">Create one</a></p>
+            </div>
+            <div id="signup-form" class="hidden">
+                <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Create Account</h2>
+                <div class="space-y-4">
+                    <input type="email" id="signup-email" placeholder="Email" class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <input type="password" id="signup-password" placeholder="Password" class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <button id="create-account-btn" class="w-full bg-indigo-600 text-white p-3 rounded-md font-semibold hover:bg-indigo-700 transition duration-200">Create Account</button>
+                </div>
+                <p class="mt-4 text-center text-gray-600"><a href="#" id="back-to-login-btn" class="text-indigo-600 hover:underline">Back to Login</a></p>
+            </div>
+            <div id="auth-message" class="mt-4 text-center text-red-500"></div>
+        </div>
+    </main>
 
-        <div id="auth-section" class="flex flex-col items-center justify-center min-h-screen">
-            <div id="login-form" class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-                <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">Login</h2>
-                <input type="email" id="login-email" placeholder="Email" class="w-full p-4 mb-4 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <input type="password" id="login-password" placeholder="Password" class="w-full p-4 mb-6 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <button id="login-btn" class="w-full bg-indigo-600 text-white p-4 rounded-md font-semibold hover:bg-indigo-700 transition duration-200">Login</button>
-                <div class="mt-4 text-center">
-                    <button id="show-signup-btn" class="text-indigo-600 hover:text-indigo-800 transition duration-200">Don't have an account? Sign Up</button>
+    <div id="tracker-section" class="hidden container mx-auto p-4 md:p-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-semibold text-gray-700">Welcome, <span id="user-id" class="text-indigo-600"></span></h2>
+            <button id="logout-btn" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-200">Logout</button>
+        </div>
+
+        <div class="flex space-x-2 mb-6">
+            <button class="tab-button bg-indigo-600 text-white px-4 py-2 rounded-t-md font-medium" data-page="tracker">Tracker</button>
+            <button class="tab-button bg-gray-200 text-gray-800 px-4 py-2 rounded-t-md font-medium" data-page="snowball">Snowball</button>
+            <button class="tab-button bg-gray-200 text-gray-800 px-4 py-2 rounded-t-md font-medium" data-page="calendar">Calendar</button>
+        </div>
+
+        <div id="tracker-page" class="page-container">
+            <div class="bg-white p-6 rounded-xl shadow-lg mb-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Summary</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div class="p-4 rounded-xl bg-green-50">
+                        <p class="text-sm text-gray-600">Total Income</p>
+                        <p id="total-income" class="text-xl font-bold text-green-600 mt-1">$0.00</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-red-50">
+                        <p class="text-sm text-gray-600">Total Expenses</p>
+                        <p id="total-expenses" class="text-xl font-bold text-red-600 mt-1">$0.00</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-blue-50">
+                        <p class="text-sm text-gray-600">Current Balance</p>
+                        <p id="current-balance" class="text-xl font-bold text-blue-600 mt-1">$0.00</p>
+                    </div>
                 </div>
             </div>
-
-            <div id="signup-form" class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md hidden">
-                <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">Create Account</h2>
-                <input type="email" id="signup-email" placeholder="Email" class="w-full p-4 mb-4 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <input type="password" id="signup-password" placeholder="Password" class="w-full p-4 mb-6 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <button id="create-account-btn" class="w-full bg-indigo-600 text-white p-4 rounded-md font-semibold hover:bg-indigo-700 transition duration-200">Create Account</button>
-                <div class="mt-4 text-center">
-                    <button id="back-to-login-btn" class="text-indigo-600 hover:text-indigo-800 transition duration-200">Back to Login</button>
+    
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-lg h-fit">
+                    <h3 id="form-title" class="text-2xl font-bold text-gray-800 mb-4">Add Transaction</h3>
+                    <form id="transaction-form" class="space-y-4">
+                        <div>
+                            <label for="description" class="block text-gray-700">Description</label>
+                            <input type="text" id="description" class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label for="amount" class="block text-gray-700">Amount</label>
+                            <input type="number" id="amount" step="0.01" class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label for="type" class="block text-gray-700">Type</label>
+                            <select id="type" class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                                <option value="debt">Debt</option>
+                            </select>
+                        </div>
+                        <div id="debt-fields" class="hidden space-y-4">
+                            <div>
+                                <label for="interest-rate" class="block text-gray-700">Interest Rate (%)</label>
+                                <input type="number" id="interest-rate" step="0.01" class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            <div>
+                                <label for="min-payment" class="block text-gray-700">Minimum Monthly Payment</label>
+                                <input type="number" id="min-payment" step="0.01" class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="recurrence" class="block text-gray-700">Recurrence</label>
+                            <select id="recurrence" class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="none">None</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="biweekly">Bi-Weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>
+                        <div id="recurrence-fields" class="hidden space-y-4">
+                            <div id="weekly-biweekly-fields" class="hidden">
+                                <p class="text-gray-700">Select Day(s) of the Week:</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <label class="flex items-center"><input type="checkbox" value="sunday" class="days-of-week mr-1"> Sun</label>
+                                    <label class="flex items-center"><input type="checkbox" value="monday" class="days-of-week mr-1"> Mon</label>
+                                    <label class="flex items-center"><input type="checkbox" value="tuesday" class="days-of-week mr-1"> Tue</label>
+                                    <label class="flex items-center"><input type="checkbox" value="wednesday" class="days-of-week mr-1"> Wed</label>
+                                    <label class="flex items-center"><input type="checkbox" value="thursday" class="days-of-week mr-1"> Thu</label>
+                                    <label class="flex items-center"><input type="checkbox" value="friday" class="days-of-week mr-1"> Fri</label>
+                                    <label class="flex items-center"><input type="checkbox" value="saturday" class="days-of-week mr-1"> Sat</label>
+                                </div>
+                            </div>
+                            <div id="monthly-fields" class="hidden">
+                                <label for="monthly-day-input" class="block text-gray-700">Day of the Month</label>
+                                <input type="number" id="monthly-day-input" min="1" max="31" class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            <div>
+                                <label for="next-pay-date-input" class="block text-gray-700">Next Pay Date</label>
+                                <input type="date" id="next-pay-date-input" class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            <div>
+                                <label for="timezone-select" class="block text-gray-700">Time Zone</label>
+                                <select id="timezone-select" class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="notes" class="block text-gray-700">Notes (Optional)</label>
+                            <textarea id="notes" rows="3" class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                        </div>
+                        <div id="message-box" class="mt-4 text-center"></div>
+                        <div class="flex space-x-2">
+                            <button type="submit" id="save-transaction-btn" class="w-full bg-indigo-600 text-white p-3 rounded-md font-semibold hover:bg-indigo-700 transition duration-200">Add Transaction</button>
+                            <button type="button" id="delete-transaction-btn" class="hidden w-full bg-red-500 text-white p-3 rounded-md font-semibold hover:bg-red-600 transition duration-200">Delete</button>
+                            <button type="button" id="cancel-edit-btn" class="hidden w-full bg-gray-300 text-gray-800 p-3 rounded-md font-semibold hover:bg-gray-400 transition duration-200">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+    
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Transactions</h3>
+                    <div id="transactions-list" class="space-y-4">
+                        </div>
                 </div>
             </div>
         </div>
 
-        <div id="tracker-section" class="hidden">
-            <header class="flex justify-between items-center py-4 mb-6">
-                <div class="flex items-center">
-                    <h1 class="text-4xl font-extrabold text-indigo-600">FinFlow</h1>
-                    <span id="user-id" class="text-xs text-gray-500 ml-4 hidden md:block"></span>
-                </div>
-                <button id="logout-btn" class="bg-red-500 text-white px-4 py-2 rounded-md font-semibold hover:bg-red-600 transition duration-200">Logout</button>
-            </header>
-
-            <nav class="flex justify-around bg-white p-2 rounded-xl shadow-md mb-6">
-                <button class="flex-1 p-3 text-center rounded-lg font-semibold transition duration-200 tab-btn bg-indigo-600 text-white" data-page="tracker">Tracker</button>
-                <button class="flex-1 p-3 text-center rounded-lg font-semibold transition duration-200 tab-btn bg-gray-200 text-gray-800" data-page="snowball">Snowball</button>
-                <button class="flex-1 p-3 text-center rounded-lg font-semibold transition duration-200 tab-btn bg-gray-200 text-gray-800" data-page="calendar">Calendar</button>
-            </nav>
-
-            <div id="tracker-page" class="page-container">
-                <div id="message-box" class="p-4 mb-4 rounded-xl hidden"></div>
-
-                <div class="bg-white p-6 rounded-xl shadow-lg mb-6">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Summary</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                        <div class="p-4 rounded-xl bg-blue-50 shadow-sm">
-                            <p class="text-sm text-gray-500">Total Income</p>
-                            <p id="total-income" class="text-2xl font-semibold text-green-600">$0.00</p>
-                        </div>
-                        <div class="p-4 rounded-xl bg-blue-50 shadow-sm">
-                            <p class="text-sm text-gray-500">Total Expenses</p>
-                            <p id="total-expenses" class="text-2xl font-semibold text-red-600">$0.00</p>
-                        </div>
-                        <div class="p-4 rounded-xl bg-blue-50 shadow-sm">
-                            <p class="text-sm text-gray-500">Current Balance</p>
-                            <p id="current-balance" class="text-2xl font-semibold text-blue-600">$0.00</p>
-                        </div>
+        <div id="snowball-page" class="page-container hidden">
+            <div class="bg-white p-6 rounded-xl shadow-lg mb-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Debt Snowball Calculator</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="extra-payment-input" class="block text-gray-700">Extra Monthly Payment</label>
+                        <input type="number" id="extra-payment-input" step="0.01" value="0" class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-xl shadow-lg mb-6">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Starting Balance</h3>
                     <div class="flex space-x-2">
-                        <input type="number" id="starting-balance-input" step="0.01" placeholder="Enter starting balance" class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <button id="save-starting-balance-btn" class="bg-indigo-600 text-white p-3 rounded-md font-semibold hover:bg-indigo-700 transition duration-200">Save</button>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-xl shadow-lg mb-6">
-                    <h3 id="form-title" class="text-2xl font-bold text-gray-800 mb-4">Add Transaction</h3>
-                    <form id="transaction-form">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                                <input type="text" id="description" placeholder="Description" required class="mt-1 w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            </div>
-                            <div>
-                                <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
-                                <input type="number" id="amount" step="0.01" placeholder="Amount" required class="mt-1 w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            </div>
-                            <div>
-                                <label for="type" class="block text-sm font-medium text-gray-700">Type</label>
-                                <select id="type" class="mt-1 w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                    <option value="expense">Expense</option>
-                                    <option value="income">Income</option>
-                                    <option value="debt">Debt</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="notes" class="block text-sm font-medium text-gray-700">Notes (Optional)</label>
-                                <input type="text" id="notes" placeholder="Notes" class="mt-1 w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            </div>
-                        </div>
-
-                        <div id="debt-fields" class="hidden mt-4 bg-gray-50 p-4 rounded-xl">
-                            <h4 class="font-semibold text-gray-800 mb-2">Debt Details</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label for="interest-rate" class="block text-sm font-medium text-gray-700">Interest Rate (%)</label>
-                                    <input type="number" id="interest-rate" step="0.01" placeholder="Interest Rate" class="mt-1 w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                </div>
-                                <div>
-                                    <label for="min-payment" class="block text-sm font-medium text-gray-700">Minimum Payment</label>
-                                    <input type="number" id="min-payment" step="0.01" placeholder="Minimum Payment" class="mt-1 w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="recurrence-fields" class="hidden mt-4 bg-gray-50 p-4 rounded-xl">
-                            <h4 class="font-semibold text-gray-800 mb-2">Recurrence Details</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                <div>
-                                    <label for="recurrence-select" class="block text-sm font-medium text-gray-700">Frequency</label>
-                                    <select id="recurrence-select" class="mt-1 w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                        <option value="none">None</option>
-                                        <option value="weekly">Weekly</option>
-                                        <option value="biweekly">Bi-weekly</option>
-                                        <option value="monthly">Monthly</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label for="next-pay-date" class="block text-sm font-medium text-gray-700">Next Pay Date</label>
-                                    <input type="date" id="next-pay-date" class="mt-1 w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                </div>
-                                <div>
-                                    <label for="timezone-select" class="block text-sm font-medium text-gray-700">Time Zone</label>
-                                    <select id="timezone-select" class="mt-1 w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
-                                </div>
-                            </div>
-
-                            <div id="monthly-day-field" class="hidden">
-                                <label for="monthly-day-input" class="block text-sm font-medium text-gray-700">Day of the Month</label>
-                                <input type="number" id="monthly-day-input" min="1" max="31" class="mt-1 w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            </div>
-
-                            <div id="weekly-days-field" class="hidden">
-                                <p class="block text-sm font-medium text-gray-700 mb-2">Select Days</p>
-                                <div class="grid grid-cols-3 md:grid-cols-7 gap-2">
-                                    <label class="flex items-center space-x-2">
-                                        <input type="checkbox" value="Sunday" class="form-checkbox text-indigo-600 days-of-week">
-                                        <span>Sun</span>
-                                    </label>
-                                    <label class="flex items-center space-x-2">
-                                        <input type="checkbox" value="Monday" class="form-checkbox text-indigo-600 days-of-week">
-                                        <span>Mon</span>
-                                    </label>
-                                    <label class="flex items-center space-x-2">
-                                        <input type="checkbox" value="Tuesday" class="form-checkbox text-indigo-600 days-of-week">
-                                        <span>Tue</span>
-                                    </label>
-                                    <label class="flex items-center space-x-2">
-                                        <input type="checkbox" value="Wednesday" class="form-checkbox text-indigo-600 days-of-week">
-                                        <span>Wed</span>
-                                    </label>
-                                    <label class="flex items-center space-x-2">
-                                        <input type="checkbox" value="Thursday" class="form-checkbox text-indigo-600 days-of-week">
-                                        <span>Thu</span>
-                                    </label>
-                                    <label class="flex items-center space-x-2">
-                                        <input type="checkbox" value="Friday" class="form-checkbox text-indigo-600 days-of-week">
-                                        <span>Fri</span>
-                                    </label>
-                                    <label class="flex items-center space-x-2">
-                                        <input type="checkbox" value="Saturday" class="form-checkbox text-indigo-600 days-of-week">
-                                        <span>Sat</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-between mt-6 space-x-4">
-                            <div class="flex-1">
-                                <button type="submit" id="save-transaction-btn" class="w-full bg-indigo-600 text-white p-3 rounded-md font-semibold hover:bg-indigo-700 transition duration-200">Add Transaction</button>
-                            </div>
-                            <button type="button" id="delete-transaction-btn" class="bg-red-500 text-white p-3 rounded-md font-semibold hover:bg-red-600 transition duration-200 hidden">Delete</button>
-                            <button type="button" id="cancel-edit-btn" class="bg-gray-300 text-gray-800 p-3 rounded-md font-semibold hover:bg-gray-400 transition duration-200 hidden">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="bg-white p-6 rounded-xl shadow-lg">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Transactions</h3>
-                    <ul id="transaction-list" class="space-y-4"></ul>
-                </div>
-            </div>
-
-            <div id="snowball-page" class="page-container hidden">
-                <div class="bg-white p-6 rounded-xl shadow-lg mb-6">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Debt Snowball Calculator</h3>
-                    <p class="text-gray-600 mb-4">The debt snowball method is a debt reduction strategy where you pay off debts in order from smallest to largest, regardless of interest rate. This method gives you a psychological boost as you pay off each debt.</p>
-
-                    <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 mb-6">
-                        <input type="number" id="extra-payment-input" step="0.01" placeholder="Extra monthly payment" class="w-full md:w-auto flex-1 p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <button id="calculate-snowball-btn" class="w-full md:w-auto bg-indigo-600 text-white p-3 rounded-md font-semibold hover:bg-indigo-700 transition duration-200">Calculate Plan</button>
-                        <button id="download-snowball-btn" class="w-full md:w-auto bg-green-500 text-white p-3 rounded-md font-semibold hover:bg-green-600 transition duration-200">Export Plan (CSV)</button>
-                    </div>
-
-                    <div id="snowball-results" class="space-y-4">
-                        <p class="text-center text-gray-500">Add your debt transactions and an extra payment to see your debt snowball plan.</p>
+                        <button id="calculate-snowball-btn" class="w-full bg-green-500 text-white p-3 rounded-md font-semibold hover:bg-green-600 transition duration-200">Calculate Plan</button>
+                        <button id="download-snowball-btn" class="w-full bg-blue-500 text-white p-3 rounded-md font-semibold hover:bg-blue-600 transition duration-200">Export Plan</button>
                     </div>
                 </div>
             </div>
-
-            <div id="calendar-page" class="page-container hidden">
-                <div class="bg-white p-6 rounded-xl shadow-lg mb-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <button id="prev-month-btn" class="p-2 rounded-full hover:bg-gray-200 transition duration-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </button>
-                        <h3 id="current-month-year" class="text-2xl font-bold text-gray-800"></h3>
-                        <button id="next-month-btn" class="p-2 rounded-full hover:bg-gray-200 transition duration-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div id="calendar-grid" class="grid grid-cols-7 gap-2 text-sm"></div>
-                    <div class="mt-6">
-                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Upcoming Paydays</h4>
-                        <ul id="upcoming-paydays-list" class="space-y-2 text-gray-600"></ul>
-                    </div>
+            <div id="snowball-results" class="space-y-4">
                 </div>
+        </div>
+
+        <div id="calendar-page" class="page-container hidden">
+            <div class="bg-white p-6 rounded-xl shadow-lg mb-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Payday Calendar</h3>
+                <div class="flex justify-between items-center mb-4">
+                    <button id="prev-month-btn" class="bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition duration-200">
+                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
+                    <h4 id="current-month-year" class="text-lg font-semibold text-gray-800"></h4>
+                    <button id="next-month-btn" class="bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition duration-200">
+                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+                <div id="calendar-grid" class="grid grid-cols-7 gap-1 text-center">
+                    </div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Upcoming Paydays</h3>
+                <ul id="upcoming-paydays-list" class="space-y-2">
+                    </ul>
             </div>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, deleteDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
+        
+        // Your Firebase config here
         // Your Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDAMs4fq-aM3YJuBux2v4XRirGXGtW_bt4",
@@ -252,21 +210,22 @@
             measurementId: "G-VLF5B7LN6B"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- GLOBAL VARIABLES ---
+        // --- GLOBAL STATE ---
         let userId = '';
         let transactions = [];
         let editingTransactionId = null;
         let unsubscribeFromTransactions = null;
         let currentCalendarDate = new Date();
-        const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
+        const DAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        
         // --- DOM ELEMENTS ---
         const authSection = document.getElementById('auth-section');
+        const trackerSection = document.getElementById('tracker-section');
         const loginForm = document.getElementById('login-form');
         const signupForm = document.getElementById('signup-form');
         const loginEmailInput = document.getElementById('login-email');
@@ -277,122 +236,137 @@
         const signupPasswordInput = document.getElementById('signup-password');
         const createAccountBtn = document.getElementById('create-account-btn');
         const backToLoginBtn = document.getElementById('back-to-login-btn');
-
-        const trackerSection = document.getElementById('tracker-section');
+        const authMessageEl = document.getElementById('auth-message');
         const userIdEl = document.getElementById('user-id');
         const logoutBtn = document.getElementById('logout-btn');
-        const messageBoxEl = document.getElementById('message-box');
 
         const totalIncomeEl = document.getElementById('total-income');
         const totalExpensesEl = document.getElementById('total-expenses');
         const currentBalanceEl = document.getElementById('current-balance');
-
-        const startingBalanceInput = document.getElementById('starting-balance-input');
-        const saveStartingBalanceBtn = document.getElementById('save-starting-balance-btn');
-
         const transactionForm = document.getElementById('transaction-form');
-        const formTitle = document.getElementById('form-title');
         const descriptionInput = document.getElementById('description');
         const amountInput = document.getElementById('amount');
         const typeSelect = document.getElementById('type');
+        const recurrenceSelect = document.getElementById('recurrence');
         const notesInput = document.getElementById('notes');
+        const transactionsListEl = document.getElementById('transactions-list');
+        const formTitle = document.getElementById('form-title');
         const saveTransactionBtn = document.getElementById('save-transaction-btn');
         const deleteTransactionBtn = document.getElementById('delete-transaction-btn');
         const cancelEditBtn = document.getElementById('cancel-edit-btn');
-        const transactionListEl = document.getElementById('transaction-list');
-
+        const messageBoxEl = document.getElementById('message-box');
         const debtFields = document.getElementById('debt-fields');
         const interestRateInput = document.getElementById('interest-rate');
         const minPaymentInput = document.getElementById('min-payment');
         const recurrenceFields = document.getElementById('recurrence-fields');
-        const recurrenceSelect = document.getElementById('recurrence-select');
-        const nextPayDateInput = document.getElementById('next-pay-date');
-        const timezoneSelect = document.getElementById('timezone-select');
-        const monthlyDayInput = document.getElementById('monthly-day-input');
-        const monthlyDayField = document.getElementById('monthly-day-field');
-        const weeklyDaysField = document.getElementById('weekly-days-field');
+        const weeklyBiweeklyFields = document.getElementById('weekly-biweekly-fields');
         const daysOfWeekCheckboxes = document.querySelectorAll('.days-of-week');
-
-        const snowballResultsEl = document.getElementById('snowball-results');
+        const monthlyFields = document.getElementById('monthly-fields');
+        const monthlyDayInput = document.getElementById('monthly-day-input');
+        const nextPayDateInput = document.getElementById('next-pay-date-input');
+        const timezoneSelect = document.getElementById('timezone-select');
         const calculateSnowballBtn = document.getElementById('calculate-snowball-btn');
         const extraPaymentInput = document.getElementById('extra-payment-input');
+        const snowballResultsEl = document.getElementById('snowball-results');
         const downloadSnowballBtn = document.getElementById('download-snowball-btn');
-
-        const pageContainers = document.querySelectorAll('.page-container');
-        const tabButtons = document.querySelectorAll('.tab-btn');
+        const calendarGridEl = document.getElementById('calendar-grid');
         const currentMonthYearEl = document.getElementById('current-month-year');
         const prevMonthBtn = document.getElementById('prev-month-btn');
         const nextMonthBtn = document.getElementById('next-month-btn');
-        const calendarGridEl = document.getElementById('calendar-grid');
         const upcomingPaydaysListEl = document.getElementById('upcoming-paydays-list');
+        const pageContainers = document.querySelectorAll('.page-container');
+        const tabButtons = document.querySelectorAll('.tab-button');
+        
+        // --- AUTH FUNCTIONS ---
+        const showMessage = (msg, isError, el) => {
+            el.textContent = msg;
+            el.className = `mt-4 text-center ${isError ? 'text-red-500' : 'text-green-500'}`;
+        };
 
-        // --- HELPER FUNCTIONS ---
+        const handleLogin = async (e) => {
+            e.preventDefault();
+            try {
+                await signInWithEmailAndPassword(auth, loginEmailInput.value, loginPasswordInput.value);
+            } catch (error) {
+                showMessage(error.message, true, authMessageEl);
+            }
+        };
+
+        const handleSignup = async (e) => {
+            e.preventDefault();
+            try {
+                await createUserWithEmailAndPassword(auth, signupEmailInput.value, signupPasswordInput.value);
+            } catch (error) {
+                showMessage(error.message, true, authMessageEl);
+            }
+        };
+
+        const showSignupForm = (e) => {
+            e.preventDefault();
+            loginForm.classList.add('hidden');
+            signupForm.classList.remove('hidden');
+            authMessageEl.textContent = '';
+        };
+
+        const showLoginForm = (e) => {
+            e.preventDefault();
+            loginForm.classList.remove('hidden');
+            signupForm.classList.add('hidden');
+            authMessageEl.textContent = '';
+        };
+
+        // --- TRANSACTION FUNCTIONS ---
         const formatCurrency = (amount) => {
             return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
         };
 
-        const showMessage = (message, isError, element) => {
-            element.textContent = message;
-            element.classList.remove('hidden', 'bg-red-200', 'text-red-800', 'bg-green-200', 'text-green-800');
-            if (isError) {
-                element.classList.add('bg-red-200', 'text-red-800');
-            } else {
-                element.classList.add('bg-green-200', 'text-green-800');
-            }
-            setTimeout(() => {
-                element.classList.add('hidden');
-            }, 5000);
+        const updateSummary = () => {
+            const income = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const expenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const debts = transactions.filter(t => t.type === 'debt').reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            
+            totalIncomeEl.textContent = formatCurrency(income);
+            totalExpensesEl.textContent = formatCurrency(expenses);
+            currentBalanceEl.textContent = formatCurrency(income - expenses);
+        };
+
+        const renderTransactions = () => {
+            transactionsListEl.innerHTML = '';
+            const sortedTransactions = [...transactions].sort((a, b) => (b.timestamp?.toDate() || new Date()) - (a.timestamp?.toDate() || new Date()));
+            sortedTransactions.forEach(t => {
+                const transactionEl = document.createElement('div');
+                const isDebt = t.type === 'debt';
+                const typeClass = isDebt ? 'bg-blue-50' : t.type === 'income' ? 'bg-green-50' : 'bg-red-50';
+                transactionEl.className = `p-4 rounded-xl shadow-sm cursor-pointer hover:shadow-md transition duration-200 ${typeClass}`;
+                transactionEl.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <p class="text-gray-800 font-medium">${t.description}</p>
+                        <p class="text-lg font-semibold ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">${formatCurrency(t.amount)}</p>
+                    </div>
+                    ${t.notes ? `<p class="text-sm text-gray-500 mt-2">Notes: ${t.notes}</p>` : ''}
+                    ${isDebt ? `
+                        <p class="text-sm text-gray-500">Interest Rate: ${t.interestRate || 'N/A'}%</p>
+                        <p class="text-sm text-gray-500">Min Payment: ${formatCurrency(t.minPayment || 0)}</p>
+                    ` : ''}
+                    ${t.recurrence && t.recurrence !== 'none' ? `
+                        <p class="text-sm text-indigo-500">Recurring: ${t.recurrence}</p>
+                    ` : ''}
+                `;
+                transactionEl.addEventListener('click', () => editTransaction(t));
+                transactionsListEl.appendChild(transactionEl);
+            });
         };
 
         const resetForm = () => {
+            editingTransactionId = null;
             transactionForm.reset();
             formTitle.textContent = 'Add Transaction';
             saveTransactionBtn.textContent = 'Add Transaction';
             deleteTransactionBtn.classList.add('hidden');
             cancelEditBtn.classList.add('hidden');
-            editingTransactionId = null;
-            toggleDebtFields();
-            toggleRecurrenceFields();
-        };
-
-        const updateSummary = (startingBalance = 0) => {
-            const income = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + parseFloat(t.amount), 0);
-            const expenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + parseFloat(t.amount), 0);
-            const debts = transactions.filter(t => t.type === 'debt').reduce((sum, t) => sum + parseFloat(t.amount), 0);
-            const currentBalance = startingBalance + income - expenses - debts;
-
-            totalIncomeEl.textContent = formatCurrency(income);
-            totalExpensesEl.textContent = formatCurrency(expenses);
-            currentBalanceEl.textContent = formatCurrency(currentBalance);
-        };
-
-        const renderTransactions = () => {
-            transactionListEl.innerHTML = '';
-            if (transactions.length === 0) {
-                transactionListEl.innerHTML = '<li class="text-center text-gray-500">No transactions added yet.</li>';
-                return;
-            }
-            transactions.forEach(transaction => {
-                const transactionEl = document.createElement('li');
-                const sign = transaction.type === 'income' ? '+' : '-';
-                const color = transaction.type === 'income' ? 'text-green-600' : 'text-red-600';
-                const notes = transaction.notes ? `<p class="text-sm text-gray-500">Notes: ${transaction.notes}</p>` : '';
-
-                transactionEl.className = 'flex justify-between items-center p-4 rounded-xl shadow-sm bg-white cursor-pointer hover:bg-gray-50 transition duration-200';
-                transactionEl.innerHTML = `
-                    <div>
-                        <p class="text-lg font-medium text-gray-800">${transaction.description}</p>
-                        <p class="text-sm text-gray-600">${new Date(transaction.timestamp.toDate()).toLocaleDateString()}</p>
-                        ${notes}
-                    </div>
-                    <div class="text-right">
-                        <p class="text-lg font-bold ${color}">${sign}${formatCurrency(transaction.amount)}</p>
-                        <p class="text-xs text-gray-400">${transaction.type}</p>
-                    </div>
-                `;
-                transactionEl.addEventListener('click', () => editTransaction(transaction));
-                transactionListEl.appendChild(transactionEl);
-            });
+            debtFields.classList.add('hidden');
+            recurrenceFields.classList.add('hidden');
+            showMessage("", false, messageBoxEl);
         };
 
         const toggleDebtFields = () => {
@@ -404,67 +378,20 @@
         };
 
         const toggleRecurrenceFields = () => {
-            if (typeSelect.value === 'income' && recurrenceSelect.value !== 'none') {
+            const isIncome = typeSelect.value === 'income';
+            const recurrenceType = recurrenceSelect.value;
+            
+            if (isIncome && recurrenceType !== 'none') {
                 recurrenceFields.classList.remove('hidden');
-                if (recurrenceSelect.value === 'monthly') {
-                    monthlyDayField.classList.remove('hidden');
-                    weeklyDaysField.classList.add('hidden');
-                } else if (recurrenceSelect.value === 'weekly' || recurrenceSelect.value === 'biweekly') {
-                    monthlyDayField.classList.add('hidden');
-                    weeklyDaysField.classList.remove('hidden');
+                if (recurrenceType === 'weekly' || recurrenceType === 'biweekly') {
+                    weeklyBiweeklyFields.classList.remove('hidden');
+                    monthlyFields.classList.add('hidden');
+                } else if (recurrenceType === 'monthly') {
+                    monthlyFields.classList.remove('hidden');
+                    weeklyBiweeklyFields.classList.add('hidden');
                 }
             } else {
                 recurrenceFields.classList.add('hidden');
-            }
-        };
-
-        // --- AUTH FUNCTIONS ---
-        const handleLogin = async (e) => {
-            e.preventDefault();
-            const email = loginEmailInput.value;
-            const password = loginPasswordInput.value;
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-            } catch (error) {
-                showMessage(`Login failed: ${error.message}`, true, messageBoxEl);
-            }
-        };
-
-        const handleSignup = async (e) => {
-            e.preventDefault();
-            const email = signupEmailInput.value;
-            const password = signupPasswordInput.value;
-            try {
-                await createUserWithEmailAndPassword(auth, email, password);
-            } catch (error) {
-                showMessage(`Signup failed: ${error.message}`, true, messageBoxEl);
-            }
-        };
-
-        const showLoginForm = () => {
-            loginForm.classList.remove('hidden');
-            signupForm.classList.add('hidden');
-        };
-
-        const showSignupForm = () => {
-            loginForm.classList.add('hidden');
-            signupForm.classList.remove('hidden');
-        };
-
-        // --- MAIN APP FUNCTIONS ---
-        const saveStartingBalance = async () => {
-            const balance = parseFloat(startingBalanceInput.value);
-            if (!isNaN(balance)) {
-                try {
-                    const userDocRef = doc(db, 'users', userId);
-                    await setDoc(userDocRef, { startingBalance: balance }, { merge: true });
-                    showMessage("Starting balance saved!", false, messageBoxEl);
-                } catch (e) {
-                    console.error("Error saving starting balance: ", e);
-                    showMessage("Error saving starting balance.", true, messageBoxEl);
-                }
-            } else {
-                showMessage("Please enter a valid number for starting balance.", true, messageBoxEl);
             }
         };
 
@@ -910,8 +837,6 @@
         backToLoginBtn.addEventListener('click', showLoginForm);
         logoutBtn.addEventListener('click', () => signOut(auth));
 
-        saveStartingBalanceBtn.addEventListener('click', saveStartingBalance);
-
         typeSelect.addEventListener('change', () => {
             toggleDebtFields();
             toggleRecurrenceFields();
@@ -954,18 +879,6 @@
                     unsubscribeFromTransactions();
                 }
                 
-                // Get starting balance and subscribe to updates
-                onSnapshot(doc(db, 'users', userId), (docSnapshot) => {
-                    let startingBalance = 0;
-                    if (docSnapshot.exists()) {
-                        const userData = docSnapshot.data();
-                        startingBalance = userData.startingBalance || 0;
-                        startingBalanceInput.value = startingBalance;
-                    }
-                    // Pass the starting balance to the updateSummary function
-                    updateSummary(startingBalance);
-                });
-
                 const q = query(collection(db, `users/${userId}/transactions`));
                 unsubscribeFromTransactions = onSnapshot(q, async (querySnapshot) => {
                     transactions = querySnapshot.docs.map(doc => ({
@@ -975,7 +888,7 @@
                     
                     await processRecurringIncome(transactions);
 
-                    updateSummary(parseFloat(startingBalanceInput.value) || 0); // Recalculate with current starting balance
+                    updateSummary();
                     renderTransactions();
                     renderPaydayCalendar(currentCalendarDate);
                 });
