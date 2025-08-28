@@ -358,9 +358,9 @@
         };
 
         const updateSummary = () => {
-            const totalIncome = transactions.filter(t => t.type === 'income' && t.recurrence === 'none').reduce((sum, t) => sum + t.amount, 0);
-            const totalExpenses = transactions.filter(t => t.type === 'expense' && t.recurrence === 'none').reduce((sum, t) => sum + t.amount, 0);
-            const totalDebt = transactions.filter(t => t.type === 'debt' && t.recurrence === 'none').reduce((sum, t) => sum + t.amount, 0);
+            const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            const totalDebt = transactions.filter(t => t.type === 'debt').reduce((sum, t) => sum + t.amount, 0);
 
             totalIncomeEl.textContent = formatCurrency(totalIncome);
             totalExpensesEl.textContent = formatCurrency(totalExpenses);
