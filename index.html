@@ -293,7 +293,9 @@
         let transactions = [];
         let editingTransactionId = null;
         let unsubscribeFromTransactions;
+        let unsubscribeFromUserDoc;
         let currentCalendarDate = new Date();
+        let initialBalance = 0;
         const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
         // --- AUTH FUNCTIONS ---
@@ -388,12 +390,12 @@
                 const transactionEl = document.createElement('div');
                 transactionEl.className = `p-4 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer transition duration-200 ease-in-out ${t.type === 'income' ? 'bg-green-50' : t.type === 'expense' ? 'bg-red-50' : 'bg-blue-50'}`;
                 transactionEl.innerHTML = `
-                    <div>
+                    <div class="grow">
                         <p class="font-medium text-gray-800">${t.description}</p>
                         <p class="text-sm text-gray-500">${new Date(t.timestamp.toDate()).toLocaleDateString()}</p>
                     </div>
-                    <div class="flex-shrink-0 w-24 sm:w-32 text-right">
-                        <span class="font-semibold text-lg ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">
+                    <div class="flex items-center">
+                        <span class="font-semibold text-lg text-right ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">
                             ${formatCurrency(t.amount)}
                         </span>
                     </div>
@@ -405,22 +407,9 @@
             });
         };
 
-        const updateSummary = async () => {
-            let initialBalance = 0;
-            const userDocRef = doc(db, 'users', userId);
-            try {
-                const userDoc = await getDoc(userDocRef);
-                if (userDoc.exists()) {
-                    initialBalance = userDoc.data().balance || 0;
-                }
-            } catch (e) {
-                console.error("Error fetching balance: ", e);
-            }
-
+        const updateSummary = () => {
             const income = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + parseFloat(t.amount), 0);
             const expenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + parseFloat(t.amount), 0);
-            const debts = transactions.filter(t => t.type === 'debt').reduce((sum, t) => sum + parseFloat(t.amount), 0);
-
             totalIncomeEl.textContent = formatCurrency(income);
             totalExpensesEl.textContent = formatCurrency(expenses);
             currentBalanceEl.textContent = formatCurrency(initialBalance + income - expenses);
@@ -551,53 +540,49 @@
             }
         };
         
-        // Helper to parse date string into a local date object
-        const parseLocalISO = (dateString) => {
-            if (!dateString) return null;
-            const parts = dateString.split('-').map(p => parseInt(p, 10));
-            return new Date(parts[0], parts[1] - 1, parts[2]);
-        };
-
         const processRecurringIncome = async (userTransactions) => {
             const recurringIncomes = userTransactions.filter(t => t.type === 'income' && t.recurrence !== 'none');
             
             for (const income of recurringIncomes) {
-                if (!income.nextPayDate || !income.timeZone) continue;
+                if (!income.nextPayDate) continue;
                 
-                const nextPayDate = parseLocalISO(income.nextPayDate);
-                const todayInTimeZone = parseLocalISO(new Date().toISOString().split('T')[0]);
+                const nextPayDate = new Date(income.nextPayDate + 'T00:00:00');
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
         
-                const lastAddedDate = income.lastAdded ? parseLocalISO(income.lastAdded.toDate().toISOString().split('T')[0]) : new Date(0);
-                const isSameDayAsLastAddition = lastAddedDate.getTime() === todayInTimeZone.getTime();
-                
-                if (isSameDayAsLastAddition) continue;
+                const lastAddedDate = income.lastAdded ? income.lastAdded.toDate() : new Date(0);
+                lastAddedDate.setHours(0, 0, 0, 0);
+
+                if (lastAddedDate.getTime() === today.getTime()) {
+                    continue; // Already processed today
+                }
         
-                if (todayInTimeZone.getTime() >= nextPayDate.getTime()) {
+                if (today.getTime() >= nextPayDate.getTime()) {
                     let shouldAdd = false;
                     let newNextPayDate = new Date(nextPayDate);
         
                     if (income.recurrence === 'weekly') {
-                        if (income.selectedDays && income.selectedDays.includes(DAY_NAMES[todayInTimeZone.getDay()])) {
+                        const todayDayName = DAY_NAMES[today.getDay()];
+                        if (income.selectedDays && income.selectedDays.includes(todayDayName)) {
                             shouldAdd = true;
-                            while (newNextPayDate.getTime() <= todayInTimeZone.getTime()) {
+                            while (newNextPayDate.getTime() <= today.getTime()) {
                                 newNextPayDate.setDate(newNextPayDate.getDate() + 7);
                             }
                         }
                     } else if (income.recurrence === 'biweekly') {
-                        if (income.selectedDays && income.selectedDays.includes(DAY_NAMES[todayInTimeZone.getDay()])) {
+                        const todayDayName = DAY_NAMES[today.getDay()];
+                        if (income.selectedDays && income.selectedDays.includes(todayDayName)) {
                             shouldAdd = true;
-                            while (newNextPayDate.getTime() <= todayInTimeZone.getTime()) {
+                            while (newNextPayDate.getTime() <= today.getTime()) {
                                 newNextPayDate.setDate(newNextPayDate.getDate() + 14);
                             }
                         }
                     } else if (income.recurrence === 'monthly') {
                         const targetDay = parseInt(income.monthlyDay);
-                        if (todayInTimeZone.getDate() >= targetDay) {
+                        if (today.getDate() >= targetDay) {
                             shouldAdd = true;
-                            let currentMonth = newNextPayDate.getMonth();
-                            let currentYear = newNextPayDate.getFullYear();
-                            newNextPayDate = new Date(currentYear, currentMonth, targetDay);
-                            while (newNextPayDate.getTime() <= todayInTimeZone.getTime()) {
+                            newNextPayDate.setDate(targetDay);
+                            while (newNextPayDate.getTime() <= today.getTime()) {
                                 newNextPayDate.setMonth(newNextPayDate.getMonth() + 1);
                                 newNextPayDate.setDate(targetDay);
                             }
@@ -808,13 +793,13 @@
 
         const getPaydaysForMonth = (year, month) => {
             const paydays = {};
-            const firstDayOfMonth = parseLocalISO(`${year}-${String(month + 1).padStart(2, '0')}-01`);
+            const firstDayOfMonth = new Date(year, month, 1);
             const lastDayOfMonth = new Date(year, month + 1, 0);
 
             transactions.filter(t => t.type === 'income' && t.recurrence !== 'none').forEach(income => {
                 if (!income.nextPayDate) return;
 
-                let currentDate = parseLocalISO(income.nextPayDate);
+                let currentDate = new Date(income.nextPayDate + 'T00:00:00');
                 
                 while (currentDate <= lastDayOfMonth) {
                     if (currentDate >= firstDayOfMonth && currentDate.getMonth() === month) {
@@ -927,16 +912,19 @@
                 if (unsubscribeFromTransactions) {
                     unsubscribeFromTransactions();
                 }
+                if (unsubscribeFromUserDoc) {
+                    unsubscribeFromUserDoc();
+                }
 
-                // Listen for real-time changes to the user's document and transactions
                 const userDocRef = doc(db, 'users', userId);
                 const transactionsRef = collection(db, `users/${userId}/transactions`);
                 const q = query(transactionsRef);
 
-                onSnapshot(userDocRef, (docSnap) => {
+                unsubscribeFromUserDoc = onSnapshot(userDocRef, (docSnap) => {
                     if (docSnap.exists()) {
-                        updateSummary(docSnap.data().balance || 0);
+                        initialBalance = docSnap.data().balance || 0;
                     }
+                    updateSummary();
                 });
 
                 unsubscribeFromTransactions = onSnapshot(q, async (querySnapshot) => {
@@ -957,7 +945,8 @@
                 authSection.classList.remove('hidden');
                 trackerSection.classList.add('hidden');
                 transactions = [];
-                updateSummary(0);
+                initialBalance = 0;
+                updateSummary();
                 renderTransactions();
                 renderPaydayCalendar(currentCalendarDate);
             }
