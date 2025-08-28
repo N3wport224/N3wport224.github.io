@@ -392,7 +392,7 @@
                         <p class="font-medium text-gray-800">${t.description}</p>
                         <p class="text-sm text-gray-500">${new Date(t.timestamp.toDate()).toLocaleDateString()}</p>
                     </div>
-                    <div class="flex items-center">
+                    <div class="flex items-center justify-center w-24 md:w-32">
                         <span class="font-semibold text-lg ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">
                             ${formatCurrency(t.amount)}
                         </span>
