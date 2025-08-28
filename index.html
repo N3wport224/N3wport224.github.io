@@ -55,10 +55,12 @@
             </div>
         </header>
 
-        <div class="flex space-x-2 md:space-x-4 mb-6 overflow-x-auto p-2 rounded-lg bg-gray-100">
-            <button data-page="dashboard" class="tab-btn bg-indigo-600 text-white flex-shrink-0 px-4 py-2 rounded-md font-semibold transition duration-200">Dashboard</button>
-            <button data-page="snowball" class="tab-btn bg-gray-200 text-gray-800 flex-shrink-0 px-4 py-2 rounded-md font-semibold transition duration-200">Debt Snowball</button>
-            <button data-page="calendar" class="tab-btn bg-gray-200 text-gray-800 flex-shrink-0 px-4 py-2 rounded-md font-semibold transition duration-200">Payday Calendar</button>
+        <div class="flex justify-center mb-6 overflow-x-auto">
+            <div class="flex space-x-2 md:space-x-4 px-2">
+                <button data-page="dashboard" class="tab-btn bg-indigo-600 text-white flex-shrink-0 px-4 py-2 rounded-md font-semibold transition duration-200">Dashboard</button>
+                <button data-page="snowball" class="tab-btn bg-gray-200 text-gray-800 flex-shrink-0 px-4 py-2 rounded-md font-semibold transition duration-200">Debt Snowball</button>
+                <button data-page="calendar" class="tab-btn bg-gray-200 text-gray-800 flex-shrink-0 px-4 py-2 rounded-md font-semibold transition duration-200">Payday Calendar</button>
+            </div>
         </div>
 
         <div id="dashboard-page" class="page-content">
@@ -384,33 +386,22 @@
             }
             transactions.forEach(t => {
                 const transactionEl = document.createElement('div');
-                transactionEl.className = `p-4 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center transition duration-200 ease-in-out ${t.type === 'income' ? 'bg-green-50' : t.type === 'expense' ? 'bg-red-50' : 'bg-blue-50'}`;
+                transactionEl.className = `p-4 rounded-xl shadow-sm border border-gray-200 flex justify-between items-start cursor-pointer transition duration-200 ease-in-out ${t.type === 'income' ? 'bg-green-50' : t.type === 'expense' ? 'bg-red-50' : 'bg-blue-50'}`;
                 transactionEl.innerHTML = `
                     <div>
                         <p class="font-medium text-gray-800">${t.description}</p>
                         <p class="text-sm text-gray-500">${new Date(t.timestamp.toDate()).toLocaleDateString()}</p>
                     </div>
-                    <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
                         <span class="font-semibold text-lg ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">
                             ${formatCurrency(t.amount)}
                         </span>
-                        <button class="edit-btn text-blue-500 hover:text-blue-700 ml-4" data-id="${t.id}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-7.5 7.5a2 2 0 012.828 0L14 10.5V17a1 1 0 01-1 1H5a1 1 0 01-1-1v-8l6.586-6.586a2 2 0 012.828 0z" />
-                            </svg>
-                        </button>
                     </div>
                 `;
-                transactionsListEl.appendChild(transactionEl);
-            });
-            document.querySelectorAll('.edit-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const id = e.currentTarget.dataset.id;
-                    const transactionToEdit = transactions.find(t => t.id === id);
-                    if (transactionToEdit) {
-                        editTransaction(transactionToEdit);
-                    }
+                transactionEl.addEventListener('click', () => {
+                    editTransaction(t);
                 });
+                transactionsListEl.appendChild(transactionEl);
             });
         };
 
