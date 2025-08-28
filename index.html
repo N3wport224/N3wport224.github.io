@@ -386,13 +386,13 @@
             }
             transactions.forEach(t => {
                 const transactionEl = document.createElement('div');
-                transactionEl.className = `p-4 rounded-xl shadow-sm border border-gray-200 flex justify-between items-start cursor-pointer transition duration-200 ease-in-out ${t.type === 'income' ? 'bg-green-50' : t.type === 'expense' ? 'bg-red-50' : 'bg-blue-50'}`;
+                transactionEl.className = `p-4 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer transition duration-200 ease-in-out ${t.type === 'income' ? 'bg-green-50' : t.type === 'expense' ? 'bg-red-50' : 'bg-blue-50'}`;
                 transactionEl.innerHTML = `
                     <div>
                         <p class="font-medium text-gray-800">${t.description}</p>
                         <p class="text-sm text-gray-500">${new Date(t.timestamp.toDate()).toLocaleDateString()}</p>
                     </div>
-                    <div class="flex items-center justify-center w-24 md:w-32">
+                    <div class="flex-shrink-0 w-24 sm:w-32 text-right">
                         <span class="font-semibold text-lg ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">
                             ${formatCurrency(t.amount)}
                         </span>
@@ -917,7 +917,7 @@
         populateTimezoneSelector();
 
         // --- FIREBASE AUTH STATE CHANGE HANDLER ---
-        const handleAuthChange = async (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 userId = user.uid;
                 userIdEl.textContent = user.email;
@@ -927,8 +927,18 @@
                 if (unsubscribeFromTransactions) {
                     unsubscribeFromTransactions();
                 }
-                
-                const q = query(collection(db, `users/${userId}/transactions`));
+
+                // Listen for real-time changes to the user's document and transactions
+                const userDocRef = doc(db, 'users', userId);
+                const transactionsRef = collection(db, `users/${userId}/transactions`);
+                const q = query(transactionsRef);
+
+                onSnapshot(userDocRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        updateSummary(docSnap.data().balance || 0);
+                    }
+                });
+
                 unsubscribeFromTransactions = onSnapshot(q, async (querySnapshot) => {
                     transactions = querySnapshot.docs.map(doc => ({
                         id: doc.id,
@@ -947,13 +957,11 @@
                 authSection.classList.remove('hidden');
                 trackerSection.classList.add('hidden');
                 transactions = [];
-                updateSummary();
+                updateSummary(0);
                 renderTransactions();
                 renderPaydayCalendar(currentCalendarDate);
             }
-        };
-
-        onAuthStateChanged(auth, handleAuthChange);
+        });
     </script>
 </body>
 </html>
