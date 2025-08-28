@@ -331,7 +331,10 @@
 
         // --- HELPER FUNCTIONS ---
         const formatCurrency = (amount) => {
-            return `$${parseFloat(amount).toFixed(2)}`;
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+            }).format(amount);
         };
 
         const showMessage = (message, isError, element) => {
